@@ -12,8 +12,8 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm install --omit=dev && \
+# Install ALL dependencies (including devDependencies for build)
+RUN npm install && \
     npm cache clean --force
 
 # Copy source code
@@ -40,18 +40,17 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY prisma ./prisma/
 
 # Install production dependencies only
 RUN npm install --omit=dev && \
     npm cache clean --force
 
-# Copy application code
-COPY . .
+# Generate Prisma Client for production
+RUN npx prisma generate
 
 # Copy built application from builder
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 
 # Copy startup script
 COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
