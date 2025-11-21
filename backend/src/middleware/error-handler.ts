@@ -6,7 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { AppError, formatError, isOperationalError } from '../utils/errors';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 
 /**
  * Global error handling middleware

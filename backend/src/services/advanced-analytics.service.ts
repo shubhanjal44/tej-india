@@ -117,54 +117,67 @@ class AdvancedAnalyticsService {
    * Get skill marketplace analytics
    */
   async getSkillMarketplaceAnalytics(timeRange: TimeRange) {
-    // Most demanded skills (by match requests)
-    const demandedSkills = await prisma.skillCategory.findMany({
-      select: {
-        categoryId: true,
-        name: true,
-        _count: {
-          select: {
-            learningUsers: true,
-          },
-        },
+    // Most demanded skills (users learning)
+    const demandedSkills = await prisma.userSkill.groupBy({
+      by: ['skillId'],
+      where: {
+        skillType: 'LEARN',
+      },
+      _count: {
+        skillId: true,
       },
       orderBy: {
-        learningUsers: {
-          _count: 'desc',
+        _count: {
+          skillId: 'desc',
         },
       },
       take: 10,
     });
 
-    // Most offered skills (by teachers)
-    const offeredSkills = await prisma.skillCategory.findMany({
-      select: {
-        categoryId: true,
-        name: true,
-        _count: {
-          select: {
-            teachingUsers: true,
-          },
-        },
+    // Most offered skills (users teaching)
+    const offeredSkills = await prisma.userSkill.groupBy({
+      by: ['skillId'],
+      where: {
+        skillType: 'TEACH',
+      },
+      _count: {
+        skillId: true,
       },
       orderBy: {
-        teachingUsers: {
-          _count: 'desc',
+        _count: {
+          skillId: 'desc',
         },
       },
       take: 10,
     });
+
+    // Get skill details
+    const demandedSkillIds = demandedSkills.map((s) => s.skillId);
+    const offeredSkillIds = offeredSkills.map((s) => s.skillId);
+    const allSkillIds = [...new Set([...demandedSkillIds, ...offeredSkillIds])];
+
+    const skills = await prisma.skill.findMany({
+      where: {
+        skillId: { in: allSkillIds },
+      },
+      select: {
+        skillId: true,
+        name: true,
+      },
+    });
+
+    const skillMap = new Map(skills.map((s) => [s.skillId, s.name]));
 
     // Supply-demand gap analysis
     const supplyDemandGap = demandedSkills.map((demanded) => {
-      const offered = offeredSkills.find((s) => s.categoryId === demanded.categoryId);
-      const demand = demanded._count.learningUsers;
-      const supply = offered?._count.teachingUsers || 0;
+      const offered = offeredSkills.find((s) => s.skillId === demanded.skillId);
+      const demand = demanded._count.skillId;
+      const supply = offered?._count.skillId || 0;
       const gap = demand - supply;
       const gapPercentage = demand > 0 ? (gap / demand) * 100 : 0;
 
       return {
-        skill: demanded.name,
+        skill: skillMap.get(demanded.skillId) || 'Unknown',
         demand,
         supply,
         gap,
@@ -173,31 +186,31 @@ class AdvancedAnalyticsService {
       };
     });
 
-    // Average swap duration by skill category
-    const avgSwapDuration = await prisma.swap.groupBy({
-      by: ['status'],
+    // Average swap duration
+    const avgSwapDuration = await prisma.swap.aggregate({
       where: {
         createdAt: {
           gte: timeRange.startDate,
           lte: timeRange.endDate,
         },
+        status: 'COMPLETED',
       },
       _avg: {
-        totalHours: true,
+        duration: true,
       },
     });
 
     return {
       demandedSkills: demandedSkills.map((s) => ({
-        name: s.name,
-        demand: s._count.learningUsers,
+        name: skillMap.get(s.skillId) || 'Unknown',
+        demand: s._count.skillId,
       })),
       offeredSkills: offeredSkills.map((s) => ({
-        name: s.name,
-        supply: s._count.teachingUsers,
+        name: skillMap.get(s.skillId) || 'Unknown',
+        supply: s._count.skillId,
       })),
       supplyDemandGap,
-      avgSwapDuration,
+      avgSwapDuration: avgSwapDuration._avg.duration || 0,
     };
   }
 
@@ -216,17 +229,13 @@ class AdvancedAnalyticsService {
       select: {
         amount: true,
         createdAt: true,
-        subscription: {
-          select: {
-            tier: true,
-          },
-        },
+        subscriptionTier: true,
       },
     });
 
     // Revenue by tier
     const revenueByTier = payments.reduce((acc, payment) => {
-      const tier = payment.subscription?.tier || 'UNKNOWN';
+      const tier = payment.subscriptionTier || 'UNKNOWN';
       acc[tier] = (acc[tier] || 0) + payment.amount;
       return acc;
     }, {} as Record<string, number>);
@@ -403,23 +412,37 @@ class AdvancedAnalyticsService {
   }
 
   private async getTopSkills(limit: number) {
-    return await prisma.skillCategory.findMany({
-      take: limit,
-      orderBy: [
-        { teachingUsers: { _count: 'desc' } },
-        { learningUsers: { _count: 'desc' } },
-      ],
-      select: {
-        categoryId: true,
-        name: true,
+    const topSkills = await prisma.userSkill.groupBy({
+      by: ['skillId'],
+      _count: {
+        skillId: true,
+      },
+      orderBy: {
         _count: {
-          select: {
-            teachingUsers: true,
-            learningUsers: true,
-          },
+          skillId: 'desc',
         },
       },
+      take: limit,
     });
+
+    const skillIds = topSkills.map((s) => s.skillId);
+    const skills = await prisma.skill.findMany({
+      where: {
+        skillId: { in: skillIds },
+      },
+      select: {
+        skillId: true,
+        name: true,
+      },
+    });
+
+    const skillMap = new Map(skills.map((s) => [s.skillId, s.name]));
+
+    return topSkills.map((s) => ({
+      skillId: s.skillId,
+      name: skillMap.get(s.skillId) || 'Unknown',
+      count: s._count.skillId,
+    }));
   }
 
   private async getUserGrowth(timeRange: TimeRange): Promise<MetricTrend> {
@@ -502,7 +525,7 @@ class AdvancedAnalyticsService {
     ] = await Promise.all([
       prisma.user.count({
         where: {
-          swapsAsRequester: {
+          swapsInitiated: {
             some: {
               createdAt: {
                 gte: timeRange.startDate,
@@ -514,7 +537,7 @@ class AdvancedAnalyticsService {
       }),
       prisma.user.count({
         where: {
-          messagesSent: {
+          messages: {
             some: {
               createdAt: {
                 gte: timeRange.startDate,
@@ -526,9 +549,9 @@ class AdvancedAnalyticsService {
       }),
       prisma.user.count({
         where: {
-          eventParticipations: {
+          eventsAttending: {
             some: {
-              createdAt: {
+              registeredAt: {
                 gte: timeRange.startDate,
                 lte: timeRange.endDate,
               },

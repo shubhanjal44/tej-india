@@ -51,37 +51,35 @@ export type Feature = typeof FEATURES[keyof typeof FEATURES];
 
 interface OnboardingProgress {
   userId: string;
-  currentStep: OnboardingStep;
-  completedSteps: OnboardingStep[];
+  currentStep?: string | null;
+  completedSteps: any; // JSON field
   isCompleted: boolean;
-  startedAt: Date;
-  completedAt?: Date;
-  skippedSteps: OnboardingStep[];
+  completedAt?: Date | null;
+  skippedSteps?: any; // JSON field (if exists)
 }
 
 interface TutorialProgress {
   userId: string;
-  tutorialType: TutorialType;
+  tutorialKey: string;
   isCompleted: boolean;
-  currentStep: number;
-  totalSteps: number;
-  startedAt: Date;
-  completedAt?: Date;
+  completedAt?: Date | null;
+  isSkipped: boolean;
 }
 
 interface FeatureDiscovery {
   userId: string;
-  feature: Feature;
+  featureKey: string;
   isDiscovered: boolean;
-  discoveredAt?: Date;
+  discoveredAt?: Date | null;
   isDismissed: boolean;
+  dismissedAt?: Date | null;
 }
 
 class OnboardingService {
   /**
    * Initialize onboarding for new user
    */
-  async initializeOnboarding(userId: string): Promise<OnboardingProgress> {
+  async initializeOnboarding(userId: string): Promise<any> {
     try {
       // Check if onboarding already exists
       const existing = await prisma.onboardingProgress.findUnique({
@@ -89,7 +87,7 @@ class OnboardingService {
       });
 
       if (existing) {
-        return existing as OnboardingProgress;
+        return existing;
       }
 
       // Create new onboarding progress
@@ -97,17 +95,15 @@ class OnboardingService {
         data: {
           userId,
           currentStep: ONBOARDING_STEPS.WELCOME,
-          completedSteps: [],
+          completedSteps: JSON.stringify([]),
           isCompleted: false,
-          startedAt: new Date(),
-          skippedSteps: [],
         },
       });
 
       // Initialize feature discovery
       await this.initializeFeatureDiscovery(userId);
 
-      return onboarding as OnboardingProgress;
+      return onboarding;
     } catch (error) {
       console.error('Error initializing onboarding:', error);
       throw error;
@@ -117,13 +113,21 @@ class OnboardingService {
   /**
    * Get onboarding progress for user
    */
-  async getProgress(userId: string): Promise<OnboardingProgress | null> {
+  async getProgress(userId: string): Promise<any> {
     try {
       const progress = await prisma.onboardingProgress.findUnique({
         where: { userId },
       });
 
-      return progress as OnboardingProgress | null;
+      if (!progress) return null;
+
+      // Parse JSON fields
+      return {
+        ...progress,
+        completedSteps: typeof progress.completedSteps === 'string' 
+          ? JSON.parse(progress.completedSteps as string)
+          : progress.completedSteps || [],
+      };
     } catch (error) {
       console.error('Error getting onboarding progress:', error);
       throw error;
@@ -137,7 +141,7 @@ class OnboardingService {
     userId: string,
     step: OnboardingStep,
     action: 'complete' | 'skip' = 'complete'
-  ): Promise<OnboardingProgress> {
+  ): Promise<any> {
     try {
       const progress = await this.getProgress(userId);
       if (!progress) {
@@ -152,24 +156,22 @@ class OnboardingService {
         ? [...(progress.completedSteps || []), step]
         : progress.completedSteps || [];
 
-      const skippedSteps = action === 'skip'
-        ? [...(progress.skippedSteps || []), step]
-        : progress.skippedSteps || [];
-
       const isCompleted = nextStep === ONBOARDING_STEPS.COMPLETE;
 
       const updated = await prisma.onboardingProgress.update({
         where: { userId },
         data: {
           currentStep: nextStep,
-          completedSteps,
-          skippedSteps,
+          completedSteps: JSON.stringify(completedSteps),
           isCompleted,
-          completedAt: isCompleted ? new Date() : undefined,
+          completedAt: isCompleted ? new Date() : null,
         },
       });
 
-      return updated as OnboardingProgress;
+      return {
+        ...updated,
+        completedSteps: JSON.parse(updated.completedSteps as string),
+      };
     } catch (error) {
       console.error('Error updating onboarding step:', error);
       throw error;
@@ -179,7 +181,7 @@ class OnboardingService {
   /**
    * Skip onboarding
    */
-  async skipOnboarding(userId: string): Promise<OnboardingProgress> {
+  async skipOnboarding(userId: string): Promise<any> {
     try {
       const updated = await prisma.onboardingProgress.update({
         where: { userId },
@@ -190,7 +192,7 @@ class OnboardingService {
         },
       });
 
-      return updated as OnboardingProgress;
+      return updated;
     } catch (error) {
       console.error('Error skipping onboarding:', error);
       throw error;
@@ -200,20 +202,22 @@ class OnboardingService {
   /**
    * Reset onboarding
    */
-  async resetOnboarding(userId: string): Promise<OnboardingProgress> {
+  async resetOnboarding(userId: string): Promise<any> {
     try {
       const updated = await prisma.onboardingProgress.update({
         where: { userId },
         data: {
           currentStep: ONBOARDING_STEPS.WELCOME,
-          completedSteps: [],
-          skippedSteps: [],
+          completedSteps: JSON.stringify([]),
           isCompleted: false,
           completedAt: null,
         },
       });
 
-      return updated as OnboardingProgress;
+      return {
+        ...updated,
+        completedSteps: JSON.parse(updated.completedSteps as string),
+      };
     } catch (error) {
       console.error('Error resetting onboarding:', error);
       throw error;
@@ -225,81 +229,32 @@ class OnboardingService {
    */
   async startTutorial(
     userId: string,
-    tutorialType: TutorialType,
-    totalSteps: number
-  ): Promise<TutorialProgress> {
+    tutorialType: TutorialType
+  ): Promise<any> {
     try {
       const tutorial = await prisma.tutorialProgress.upsert({
         where: {
-          userId_tutorialType: {
+          userId_tutorialKey: {
             userId,
-            tutorialType,
+            tutorialKey: tutorialType,
           },
         },
         create: {
           userId,
-          tutorialType,
-          currentStep: 0,
-          totalSteps,
+          tutorialKey: tutorialType,
           isCompleted: false,
-          startedAt: new Date(),
+          isSkipped: false,
         },
         update: {
-          currentStep: 0,
-          totalSteps,
           isCompleted: false,
+          isSkipped: false,
           completedAt: null,
         },
       });
 
-      return tutorial as TutorialProgress;
+      return tutorial;
     } catch (error) {
       console.error('Error starting tutorial:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Update tutorial progress
-   */
-  async updateTutorialProgress(
-    userId: string,
-    tutorialType: TutorialType,
-    currentStep: number
-  ): Promise<TutorialProgress> {
-    try {
-      const tutorial = await prisma.tutorialProgress.findUnique({
-        where: {
-          userId_tutorialType: {
-            userId,
-            tutorialType,
-          },
-        },
-      });
-
-      if (!tutorial) {
-        throw new Error('Tutorial not started');
-      }
-
-      const isCompleted = currentStep >= tutorial.totalSteps;
-
-      const updated = await prisma.tutorialProgress.update({
-        where: {
-          userId_tutorialType: {
-            userId,
-            tutorialType,
-          },
-        },
-        data: {
-          currentStep,
-          isCompleted,
-          completedAt: isCompleted ? new Date() : undefined,
-        },
-      });
-
-      return updated as TutorialProgress;
-    } catch (error) {
-      console.error('Error updating tutorial progress:', error);
       throw error;
     }
   }
@@ -310,18 +265,18 @@ class OnboardingService {
   async getTutorialProgress(
     userId: string,
     tutorialType: TutorialType
-  ): Promise<TutorialProgress | null> {
+  ): Promise<any> {
     try {
       const tutorial = await prisma.tutorialProgress.findUnique({
         where: {
-          userId_tutorialType: {
+          userId_tutorialKey: {
             userId,
-            tutorialType,
+            tutorialKey: tutorialType,
           },
         },
       });
 
-      return tutorial as TutorialProgress | null;
+      return tutorial;
     } catch (error) {
       console.error('Error getting tutorial progress:', error);
       throw error;
@@ -331,13 +286,13 @@ class OnboardingService {
   /**
    * Get all tutorials for user
    */
-  async getAllTutorials(userId: string): Promise<TutorialProgress[]> {
+  async getAllTutorials(userId: string): Promise<any[]> {
     try {
       const tutorials = await prisma.tutorialProgress.findMany({
         where: { userId },
       });
 
-      return tutorials as TutorialProgress[];
+      return tutorials;
     } catch (error) {
       console.error('Error getting all tutorials:', error);
       throw error;
@@ -350,13 +305,13 @@ class OnboardingService {
   async completeTutorial(
     userId: string,
     tutorialType: TutorialType
-  ): Promise<TutorialProgress> {
+  ): Promise<any> {
     try {
       const tutorial = await prisma.tutorialProgress.findUnique({
         where: {
-          userId_tutorialType: {
+          userId_tutorialKey: {
             userId,
-            tutorialType,
+            tutorialKey: tutorialType,
           },
         },
       });
@@ -367,19 +322,18 @@ class OnboardingService {
 
       const updated = await prisma.tutorialProgress.update({
         where: {
-          userId_tutorialType: {
+          userId_tutorialKey: {
             userId,
-            tutorialType,
+            tutorialKey: tutorialType,
           },
         },
         data: {
-          currentStep: tutorial.totalSteps,
           isCompleted: true,
           completedAt: new Date(),
         },
       });
 
-      return updated as TutorialProgress;
+      return updated;
     } catch (error) {
       console.error('Error completing tutorial:', error);
       throw error;
@@ -396,7 +350,7 @@ class OnboardingService {
       await prisma.featureDiscovery.createMany({
         data: features.map((feature) => ({
           userId,
-          feature,
+          featureKey: feature,
           isDiscovered: false,
           isDismissed: false,
         })),
@@ -411,18 +365,18 @@ class OnboardingService {
   /**
    * Mark feature as discovered
    */
-  async discoverFeature(userId: string, feature: Feature): Promise<FeatureDiscovery> {
+  async discoverFeature(userId: string, feature: Feature): Promise<any> {
     try {
       const discovered = await prisma.featureDiscovery.upsert({
         where: {
-          userId_feature: {
+          userId_featureKey: {
             userId,
-            feature,
+            featureKey: feature,
           },
         },
         create: {
           userId,
-          feature,
+          featureKey: feature,
           isDiscovered: true,
           discoveredAt: new Date(),
           isDismissed: false,
@@ -433,7 +387,7 @@ class OnboardingService {
         },
       });
 
-      return discovered as FeatureDiscovery;
+      return discovered;
     } catch (error) {
       console.error('Error discovering feature:', error);
       throw error;
@@ -443,21 +397,22 @@ class OnboardingService {
   /**
    * Dismiss feature discovery
    */
-  async dismissFeature(userId: string, feature: Feature): Promise<FeatureDiscovery> {
+  async dismissFeature(userId: string, feature: Feature): Promise<any> {
     try {
       const dismissed = await prisma.featureDiscovery.update({
         where: {
-          userId_feature: {
+          userId_featureKey: {
             userId,
-            feature,
+            featureKey: feature,
           },
         },
         data: {
           isDismissed: true,
+          dismissedAt: new Date(),
         },
       });
 
-      return dismissed as FeatureDiscovery;
+      return dismissed;
     } catch (error) {
       console.error('Error dismissing feature:', error);
       throw error;
@@ -467,7 +422,7 @@ class OnboardingService {
   /**
    * Get undiscovered features
    */
-  async getUndiscoveredFeatures(userId: string): Promise<FeatureDiscovery[]> {
+  async getUndiscoveredFeatures(userId: string): Promise<any[]> {
     try {
       const features = await prisma.featureDiscovery.findMany({
         where: {
@@ -477,7 +432,7 @@ class OnboardingService {
         },
       });
 
-      return features as FeatureDiscovery[];
+      return features;
     } catch (error) {
       console.error('Error getting undiscovered features:', error);
       throw error;
@@ -493,7 +448,7 @@ class OnboardingService {
     inProgress: number;
     completionRate: number;
     averageCompletionTime: number;
-    stepCompletionRates: Record<OnboardingStep, number>;
+    stepCompletionRates: Record<string, number>;
   }> {
     try {
       const [total, completed, allProgress] = await Promise.all([
@@ -509,13 +464,13 @@ class OnboardingService {
 
       // Calculate average completion time
       const completedWithTime = allProgress.filter(
-        (p) => p.isCompleted && p.completedAt && p.startedAt
+        (p) => p.isCompleted && p.completedAt && p.createdAt
       );
 
       const averageCompletionTime =
         completedWithTime.length > 0
           ? completedWithTime.reduce((sum, p) => {
-              const time = p.completedAt!.getTime() - p.startedAt.getTime();
+              const time = p.completedAt!.getTime() - p.createdAt.getTime();
               return sum + time;
             }, 0) / completedWithTime.length
           : 0;
@@ -525,9 +480,12 @@ class OnboardingService {
       const steps = Object.values(ONBOARDING_STEPS);
 
       for (const step of steps) {
-        const completedStep = allProgress.filter((p) =>
-          (p.completedSteps || []).includes(step)
-        ).length;
+        const completedStep = allProgress.filter((p) => {
+          const completedSteps = typeof p.completedSteps === 'string'
+            ? JSON.parse(p.completedSteps)
+            : p.completedSteps || [];
+          return completedSteps.includes(step);
+        }).length;
         stepCompletionRates[step] = total > 0 ? (completedStep / total) * 100 : 0;
       }
 
@@ -537,7 +495,7 @@ class OnboardingService {
         inProgress,
         completionRate,
         averageCompletionTime: averageCompletionTime / 1000 / 60, // Convert to minutes
-        stepCompletionRates: stepCompletionRates as Record<OnboardingStep, number>,
+        stepCompletionRates,
       };
     } catch (error) {
       console.error('Error getting onboarding stats:', error);
@@ -552,7 +510,7 @@ class OnboardingService {
     totalTutorials: number;
     completedTutorials: number;
     completionRate: number;
-    tutorialCompletionRates: Record<TutorialType, number>;
+    tutorialCompletionRates: Record<string, number>;
   }> {
     try {
       const [total, completed, allTutorials] = await Promise.all([
@@ -570,9 +528,9 @@ class OnboardingService {
       const types = Object.values(TUTORIAL_TYPES);
 
       for (const type of types) {
-        const typeTotal = allTutorials.filter((t) => t.tutorialType === type).length;
+        const typeTotal = allTutorials.filter((t) => t.tutorialKey === type).length;
         const typeCompleted = allTutorials.filter(
-          (t) => t.tutorialType === type && t.isCompleted
+          (t) => t.tutorialKey === type && t.isCompleted
         ).length;
         tutorialCompletionRates[type] =
           typeTotal > 0 ? (typeCompleted / typeTotal) * 100 : 0;
@@ -582,7 +540,7 @@ class OnboardingService {
         totalTutorials: total,
         completedTutorials: completed,
         completionRate,
-        tutorialCompletionRates: tutorialCompletionRates as Record<TutorialType, number>,
+        tutorialCompletionRates,
       };
     } catch (error) {
       console.error('Error getting tutorial stats:', error);
@@ -597,7 +555,7 @@ class OnboardingService {
     totalFeatures: number;
     discoveredFeatures: number;
     discoveryRate: number;
-    featureDiscoveryRates: Record<Feature, number>;
+    featureDiscoveryRates: Record<string, number>;
   }> {
     try {
       const [total, discovered, allFeatures] = await Promise.all([
@@ -615,9 +573,9 @@ class OnboardingService {
       const features = Object.values(FEATURES);
 
       for (const feature of features) {
-        const featureTotal = allFeatures.filter((f) => f.feature === feature).length;
+        const featureTotal = allFeatures.filter((f) => f.featureKey === feature).length;
         const featureDiscovered = allFeatures.filter(
-          (f) => f.feature === feature && f.isDiscovered
+          (f) => f.featureKey === feature && f.isDiscovered
         ).length;
         featureDiscoveryRates[feature] =
           featureTotal > 0 ? (featureDiscovered / featureTotal) * 100 : 0;
@@ -627,7 +585,7 @@ class OnboardingService {
         totalFeatures: total,
         discoveredFeatures: discovered,
         discoveryRate,
-        featureDiscoveryRates: featureDiscoveryRates as Record<Feature, number>,
+        featureDiscoveryRates,
       };
     } catch (error) {
       console.error('Error getting feature discovery stats:', error);

@@ -57,8 +57,15 @@ class RecommendationService {
     const user = await prisma.user.findUnique({
       where: { userId },
       include: {
-        skillsTeaching: true,
-        skillsLearning: true,
+        skills: {
+          include: {
+            skill: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -66,27 +73,38 @@ class RecommendationService {
       throw new Error('User not found');
     }
 
-    const userTeachingIds = user.skillsTeaching.map((s) => s.categoryId);
-    const userLearningIds = user.skillsLearning.map((s) => s.categoryId);
+    const userTeachingIds = user.skills
+      .filter((s) => s.skillType === 'TEACH')
+      .map((s) => s.skill.categoryId);
+    const userLearningIds = user.skills
+      .filter((s) => s.skillType === 'LEARN')
+      .map((s) => s.skill.categoryId);
     const allUserSkillIds = [...userTeachingIds, ...userLearningIds];
 
-    // Get all skill categories
+    // Get all skill categories user doesn't have
     const allSkills = await prisma.skillCategory.findMany({
       where: {
         categoryId: { notIn: allUserSkillIds },
+        isActive: true,
       },
       include: {
-        teachingUsers: {
-          select: {
-            userId: true,
-            city: true,
-            state: true,
-            rating: true,
-          },
-        },
-        learningUsers: {
-          select: {
-            userId: true,
+        skills: {
+          include: {
+            userSkills: {
+              where: {
+                skillType: 'TEACH',
+              },
+              include: {
+                user: {
+                  select: {
+                    userId: true,
+                    city: true,
+                    state: true,
+                    rating: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -95,18 +113,36 @@ class RecommendationService {
     // Score each skill
     const recommendations: SkillRecommendation[] = [];
 
-    for (const skill of allSkills) {
-      const score = await this.calculateSkillScore(user, skill, {
-        userTeachingIds,
-        userLearningIds,
+    for (const skillCategory of allSkills) {
+      // Get all teachers for this category
+      const teachers = skillCategory.skills.flatMap((skill) =>
+        skill.userSkills.map((us) => us.user)
+      );
+
+      // Count learners
+      const learnerCount = await prisma.userSkill.count({
+        where: {
+          skill: {
+            categoryId: skillCategory.categoryId,
+          },
+          skillType: 'LEARN',
+        },
       });
 
+      const score = await this.calculateSkillScore(
+        user,
+        { ...skillCategory, teachers, learnerCount },
+        {
+          userTeachingIds,
+          userLearningIds,
+        }
+      );
+
       if (score.score > 0) {
-        const teacherCount = skill.teachingUsers.length;
-        const learnerCount = skill.learningUsers.length;
+        const teacherCount = teachers.length;
         const avgRating =
           teacherCount > 0
-            ? skill.teachingUsers.reduce((sum, u) => sum + (u.rating || 0), 0) / teacherCount
+            ? teachers.reduce((sum, u) => sum + (u.rating || 0), 0) / teacherCount
             : 0;
 
         // Determine demand level
@@ -115,8 +151,8 @@ class RecommendationService {
         else if (learnerCount > teacherCount) demandLevel = 'medium';
 
         recommendations.push({
-          categoryId: skill.categoryId,
-          categoryName: skill.name,
+          categoryId: skillCategory.categoryId,
+          categoryName: skillCategory.name,
           score: score.score,
           matchingUsers: teacherCount,
           avgRating,
@@ -152,8 +188,15 @@ class RecommendationService {
     const currentUser = await prisma.user.findUnique({
       where: { userId },
       include: {
-        skillsTeaching: true,
-        skillsLearning: true,
+        skills: {
+          include: {
+            skill: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
         connections: true,
       },
     });
@@ -176,8 +219,15 @@ class RecommendationService {
         emailVerified: true,
       },
       include: {
-        skillsTeaching: true,
-        skillsLearning: true,
+        skills: {
+          include: {
+            skill: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
       },
       take: 100, // Pre-filter to reduce computation
     });
@@ -190,10 +240,18 @@ class RecommendationService {
 
       if (matchScore.score > 0) {
         // Find common and complementary skills
-        const currentTeaching = currentUser.skillsTeaching.map((s) => s.categoryId);
-        const currentLearning = currentUser.skillsLearning.map((s) => s.categoryId);
-        const matchTeaching = match.skillsTeaching.map((s) => s.categoryId);
-        const matchLearning = match.skillsLearning.map((s) => s.categoryId);
+        const currentTeaching = currentUser.skills
+          .filter((s) => s.skillType === 'TEACH')
+          .map((s) => s.skill.categoryId);
+        const currentLearning = currentUser.skills
+          .filter((s) => s.skillType === 'LEARN')
+          .map((s) => s.skill.categoryId);
+        const matchTeaching = match.skills
+          .filter((s) => s.skillType === 'TEACH')
+          .map((s) => s.skill.categoryId);
+        const matchLearning = match.skills
+          .filter((s) => s.skillType === 'LEARN')
+          .map((s) => s.skill.categoryId);
 
         const commonTeaching = currentTeaching.filter((s) => matchTeaching.includes(s));
         const complementarySkills = currentLearning.filter((s) =>
@@ -201,8 +259,10 @@ class RecommendationService {
         );
 
         // Get skill names
-        const commonSkillNames = await this.getSkillNames(commonTeaching);
-        const complementarySkillNames = await this.getSkillNames(complementarySkills);
+        const commonSkillNames = await this.getSkillCategoryNames(commonTeaching);
+        const complementarySkillNames = await this.getSkillCategoryNames(
+          complementarySkills
+        );
 
         recommendations.push({
           userId: match.userId,
@@ -233,8 +293,11 @@ class RecommendationService {
     const user = await prisma.user.findUnique({
       where: { userId },
       include: {
-        skillsTeaching: true,
-        skillsLearning: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -242,25 +305,22 @@ class RecommendationService {
       throw new Error('User not found');
     }
 
-    const userSkillIds = [
-      ...user.skillsTeaching.map((s) => s.categoryId),
-      ...user.skillsLearning.map((s) => s.categoryId),
-    ];
+    const userSkillIds = user.skills.map((s) => s.skillId);
 
     // Find events related to user's skills
     const events = await prisma.event.findMany({
       where: {
         status: 'PUBLISHED',
-        eventDate: {
+        startTime: {
           gte: new Date(),
         },
         OR: [
-          { category: { in: userSkillIds } },
+          { skillId: { in: userSkillIds } },
           { city: user.city },
         ],
       },
       include: {
-        host: {
+        organizer: {
           select: {
             name: true,
             avatar: true,
@@ -269,12 +329,12 @@ class RecommendationService {
         },
         _count: {
           select: {
-            participants: true,
+            attendees: true,
           },
         },
       },
       orderBy: {
-        eventDate: 'asc',
+        startTime: 'asc',
       },
       take: limit,
     });
@@ -283,12 +343,13 @@ class RecommendationService {
       eventId: event.eventId,
       title: event.title,
       description: event.description,
-      eventDate: event.eventDate,
+      startTime: event.startTime,
+      endTime: event.endTime,
       location: event.location,
-      category: event.category,
-      host: event.host,
-      participants: event._count.participants,
-      maxParticipants: event.maxParticipants,
+      skillId: event.skillId,
+      organizer: event.organizer,
+      attendees: event._count.attendees,
+      maxAttendees: event.maxAttendees,
       relevanceScore: this.calculateEventRelevance(event, user),
     }));
   }
@@ -300,8 +361,15 @@ class RecommendationService {
     const user = await prisma.user.findUnique({
       where: { userId },
       include: {
-        skillsTeaching: true,
-        skillsLearning: true,
+        skills: {
+          include: {
+            skill: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -309,10 +377,7 @@ class RecommendationService {
       throw new Error('User not found');
     }
 
-    const userSkillIds = [
-      ...user.skillsTeaching.map((s) => s.categoryId),
-      ...user.skillsLearning.map((s) => s.categoryId),
-    ];
+    const userSkillIds = user.skills.map((s) => s.skillId);
 
     // Find users with similar skills
     const similarUsers = await prisma.user.findMany({
@@ -321,16 +386,9 @@ class RecommendationService {
         status: 'ACTIVE',
         OR: [
           {
-            skillsTeaching: {
+            skills: {
               some: {
-                categoryId: { in: userSkillIds },
-              },
-            },
-          },
-          {
-            skillsLearning: {
-              some: {
-                categoryId: { in: userSkillIds },
+                skillId: { in: userSkillIds },
               },
             },
           },
@@ -339,22 +397,11 @@ class RecommendationService {
         ],
       },
       include: {
-        skillsTeaching: {
-          select: {
-            categoryId: true,
-            category: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        skillsLearning: {
-          select: {
-            categoryId: true,
-            category: {
-              select: {
-                name: true,
+        skills: {
+          include: {
+            skill: {
+              include: {
+                category: true,
               },
             },
           },
@@ -371,8 +418,12 @@ class RecommendationService {
       state: simUser.state,
       rating: simUser.rating,
       level: simUser.level,
-      teachingSkills: simUser.skillsTeaching.map((s) => s.category.name),
-      learningSkills: simUser.skillsLearning.map((s) => s.category.name),
+      teachingSkills: simUser.skills
+        .filter((s) => s.skillType === 'TEACH')
+        .map((s) => s.skill.category.name),
+      learningSkills: simUser.skills
+        .filter((s) => s.skillType === 'LEARN')
+        .map((s) => s.skill.category.name),
     }));
   }
 
@@ -390,7 +441,7 @@ class RecommendationService {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const recentSwaps = await prisma.swap.groupBy({
-      by: ['requesterSkillId', 'providerSkillId'],
+      by: ['initiatorSkillId', 'receiverSkillId'],
       where: {
         createdAt: {
           gte: thirtyDaysAgo,
@@ -403,19 +454,19 @@ class RecommendationService {
     const skillCounts: Record<string, number> = {};
 
     recentSwaps.forEach((swap) => {
-      if (swap.requesterSkillId) {
-        skillCounts[swap.requesterSkillId] =
-          (skillCounts[swap.requesterSkillId] || 0) + swap._count;
+      if (swap.initiatorSkillId) {
+        skillCounts[swap.initiatorSkillId] =
+          (skillCounts[swap.initiatorSkillId] || 0) + swap._count;
       }
-      if (swap.providerSkillId) {
-        skillCounts[swap.providerSkillId] =
-          (skillCounts[swap.providerSkillId] || 0) + swap._count;
+      if (swap.receiverSkillId) {
+        skillCounts[swap.receiverSkillId] =
+          (skillCounts[swap.receiverSkillId] || 0) + swap._count;
       }
     });
 
     // Get skill details
     const skillIds = Object.keys(skillCounts);
-    const skills = await prisma.userSkill.findMany({
+    const skills = await prisma.skill.findMany({
       where: {
         skillId: { in: skillIds },
       },
@@ -444,33 +495,34 @@ class RecommendationService {
 
   private async calculateSkillScore(
     user: any,
-    skill: any,
+    skillCategory: any,
     context: { userTeachingIds: string[]; userLearningIds: string[] }
   ): Promise<RecommendationScore> {
     let score = 0;
     const reasons: string[] = [];
 
     // Factor 1: Location match (nearby teachers)
-    const localTeachers = skill.teachingUsers.filter(
+    const localTeachers = skillCategory.teachers?.filter(
       (t: any) => t.city === user.city || t.state === user.state
-    );
+    ) || [];
     if (localTeachers.length > 0) {
       score += 30;
       reasons.push(`${localTeachers.length} teachers in your area`);
     }
 
     // Factor 2: Popular skill (high demand)
-    const learnerCount = skill.learningUsers.length;
+    const learnerCount = skillCategory.learnerCount || 0;
     if (learnerCount > 10) {
       score += 20;
       reasons.push(`${learnerCount} people want to learn this`);
     }
 
     // Factor 3: High-rated teachers
+    const teachers = skillCategory.teachers || [];
     const avgRating =
-      skill.teachingUsers.length > 0
-        ? skill.teachingUsers.reduce((sum: number, u: any) => sum + (u.rating || 0), 0) /
-          skill.teachingUsers.length
+      teachers.length > 0
+        ? teachers.reduce((sum: number, u: any) => sum + (u.rating || 0), 0) /
+          teachers.length
         : 0;
     if (avgRating >= 4.5) {
       score += 25;
@@ -478,21 +530,20 @@ class RecommendationService {
     }
 
     // Factor 4: Complementary to existing skills
-    // (skills that work well with user's current skills)
     if (context.userTeachingIds.length > 0) {
       score += 15;
       reasons.push('Complements your existing skills');
     }
 
     // Factor 5: Skill availability (teachers vs learners ratio)
-    const teacherCount = skill.teachingUsers.length;
+    const teacherCount = teachers.length;
     if (teacherCount > learnerCount) {
       score += 10;
       reasons.push('Many teachers available');
     }
 
     return {
-      id: skill.categoryId,
+      id: skillCategory.categoryId,
       score,
       reasons,
     };
@@ -502,10 +553,18 @@ class RecommendationService {
     let score = 0;
     const reasons: string[] = [];
 
-    const currentTeaching = currentUser.skillsTeaching.map((s: any) => s.categoryId);
-    const currentLearning = currentUser.skillsLearning.map((s: any) => s.categoryId);
-    const matchTeaching = matchUser.skillsTeaching.map((s: any) => s.categoryId);
-    const matchLearning = matchUser.skillsLearning.map((s: any) => s.categoryId);
+    const currentTeaching = currentUser.skills
+      .filter((s: any) => s.skillType === 'TEACH')
+      .map((s: any) => s.skill.categoryId);
+    const currentLearning = currentUser.skills
+      .filter((s: any) => s.skillType === 'LEARN')
+      .map((s: any) => s.skill.categoryId);
+    const matchTeaching = matchUser.skills
+      .filter((s: any) => s.skillType === 'TEACH')
+      .map((s: any) => s.skill.categoryId);
+    const matchLearning = matchUser.skills
+      .filter((s: any) => s.skillType === 'LEARN')
+      .map((s: any) => s.skill.categoryId);
 
     // Factor 1: Skill exchange potential
     const canTeachToMatch = currentTeaching.filter((s) => matchLearning.includes(s)).length;
@@ -557,13 +616,10 @@ class RecommendationService {
   private calculateEventRelevance(event: any, user: any): number {
     let score = 0;
 
-    // Event in user's skill categories
-    const userSkillIds = [
-      ...user.skillsTeaching.map((s: any) => s.categoryId),
-      ...user.skillsLearning.map((s: any) => s.categoryId),
-    ];
+    // Event skill matches user's skills
+    const userSkillIds = user.skills.map((s: any) => s.skillId);
 
-    if (event.category && userSkillIds.includes(event.category)) {
+    if (event.skillId && userSkillIds.includes(event.skillId)) {
       score += 50;
     }
 
@@ -576,8 +632,8 @@ class RecommendationService {
 
     // Event popularity (participation rate)
     const participationRate =
-      event.maxParticipants > 0
-        ? (event._count.participants / event.maxParticipants) * 100
+      event.maxAttendees > 0
+        ? (event._count.attendees / event.maxAttendees) * 100
         : 0;
     if (participationRate > 50) {
       score += 20;
@@ -586,12 +642,12 @@ class RecommendationService {
     return score;
   }
 
-  private async getSkillNames(skillIds: string[]): Promise<string[]> {
-    if (skillIds.length === 0) return [];
+  private async getSkillCategoryNames(categoryIds: string[]): Promise<string[]> {
+    if (categoryIds.length === 0) return [];
 
     const categories = await prisma.skillCategory.findMany({
       where: {
-        categoryId: { in: skillIds },
+        categoryId: { in: categoryIds },
       },
       select: {
         name: true,

@@ -205,13 +205,13 @@ class ContentModerationService {
         include: {
           _count: {
             select: {
-              reportsMade: true,
+              reportsCreated: true,
               reportsReceived: true,
             },
           },
         },
       }),
-      prisma.chatMessage.count({
+      prisma.message.count({
         where: {
           senderId: userId,
           createdAt: {
@@ -221,7 +221,7 @@ class ContentModerationService {
       }),
       prisma.review.count({
         where: {
-          reviewerId: userId,
+          studentId: userId,
           createdAt: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
           },
@@ -229,7 +229,7 @@ class ContentModerationService {
       }),
       prisma.swap.count({
         where: {
-          requesterId: userId,
+          initiatorId: userId,
           createdAt: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
           },
@@ -299,7 +299,7 @@ class ContentModerationService {
       where: { reviewId },
       select: {
         comment: true,
-        reviewerId: true,
+        studentId: true,
       },
     });
 
@@ -310,27 +310,34 @@ class ContentModerationService {
     const result = await this.moderateContent(review.comment, 'review');
 
     if (result.action === 'block') {
-      // Auto-delete flagged content
-      await prisma.review.update({
-        where: { reviewId },
-        data: {
-          isDeleted: true,
-        },
-      });
-
-      logger.warn('Review auto-moderated (blocked)', {
+      // Auto-delete flagged content - Note: isDeleted field doesn't exist in schema
+      // You could use a Report instead or add this field to schema
+      logger.warn('Review flagged for deletion (blocked)', {
         reviewId,
-        reviewerId: review.reviewerId,
+        studentId: review.studentId,
         flags: result.flags,
         score: result.score,
+      });
+
+      // Create report instead
+      await prisma.report.create({
+        data: {
+          reporterId: 'SYSTEM', // Use a system user ID
+          reportedUserId: review.studentId,
+          reviewId: reviewId,
+          type: 'INAPPROPRIATE_CONTENT',
+          status: 'RESOLVED',
+          reason: 'Auto-moderated content',
+          description: result.reasons.join(', '),
+        },
       });
 
       // Create alert for admins
       await this.createModerationAlert({
         type: 'REVIEW',
         entityId: reviewId,
-        userId: review.reviewerId,
-        action: 'auto-deleted',
+        userId: review.studentId,
+        action: 'auto-flagged',
         reason: result.reasons.join(', '),
         severity: result.severity,
       });
@@ -339,7 +346,7 @@ class ContentModerationService {
       await this.createModerationAlert({
         type: 'REVIEW',
         entityId: reviewId,
-        userId: review.reviewerId,
+        userId: review.studentId,
         action: 'flagged-for-review',
         reason: result.reasons.join(', '),
         severity: result.severity,
@@ -351,7 +358,7 @@ class ContentModerationService {
    * Auto-moderate chat messages
    */
   async autoModerateMessage(messageId: string): Promise<boolean> {
-    const message = await prisma.chatMessage.findUnique({
+    const message = await prisma.message.findUnique({
       where: { messageId },
       select: {
         content: true,
@@ -366,11 +373,12 @@ class ContentModerationService {
     const result = await this.moderateContent(message.content, 'message');
 
     if (result.action === 'block') {
-      // Delete message
-      await prisma.chatMessage.update({
+      // Mark message as deleted
+      await prisma.message.update({
         where: { messageId },
         data: {
           isDeleted: true,
+          deletedAt: new Date(),
         },
       });
 
@@ -394,12 +402,24 @@ class ContentModerationService {
    * Get moderation statistics
    */
   async getModerationStats(timeRange: { startDate: Date; endDate: Date }) {
-    // This would track actual moderation actions
-    // For now, return sample structure
+    // Get actual moderation data from reports
+    const reports = await prisma.report.findMany({
+      where: {
+        createdAt: {
+          gte: timeRange.startDate,
+          lte: timeRange.endDate,
+        },
+      },
+    });
+
+    const totalModerated = reports.length;
+    const autoDeleted = reports.filter(r => r.status === 'RESOLVED').length;
+    const flaggedForReview = reports.filter(r => r.status === 'PENDING').length;
+
     return {
-      totalModerated: 0,
-      autoDeleted: 0,
-      flaggedForReview: 0,
+      totalModerated,
+      autoDeleted,
+      flaggedForReview,
       falsePositives: 0,
       bySeverity: {
         low: 0,
@@ -408,10 +428,10 @@ class ContentModerationService {
         critical: 0,
       },
       byType: {
-        review: 0,
-        message: 0,
-        profile: 0,
-        event: 0,
+        review: reports.filter(r => r.reviewId !== null).length,
+        message: reports.filter(r => r.messageId !== null).length,
+        profile: reports.filter(r => r.type === 'PROFILE_CONTENT').length,
+        event: reports.filter(r => r.eventId !== null).length,
       },
     };
   }
@@ -517,9 +537,26 @@ class ContentModerationService {
     reason: string;
     severity: string;
   }): Promise<void> {
-    // Would create a moderation alert record
-    // For now, just log it
+    // Log moderation alert
     logger.info('Moderation alert created', data);
+    
+    // Could also create a notification for admins
+    const admins = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { userId: true },
+    });
+
+    for (const admin of admins) {
+      await prisma.notification.create({
+        data: {
+          userId: admin.userId,
+          type: 'SYSTEM',
+          title: 'Content Moderation Alert',
+          message: `${data.type} flagged: ${data.reason}`,
+          data: data,
+        },
+      });
+    }
   }
 }
 
