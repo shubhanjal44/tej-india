@@ -8,6 +8,7 @@ import { otpService } from '../services/otp.service';
 import { logger } from '../utils/logger';
 import { authLimiter } from '../middleware/rateLimiter';
 import { authenticate } from '../middleware/auth';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -52,7 +53,7 @@ router.post(
     body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
     body('phone').optional().isMobilePhone('en-IN').withMessage('Valid phone number required'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password, name, phone } = req.body;
 
@@ -124,7 +125,7 @@ router.post(
     body('email').isEmail().normalizeEmail(),
     body('otp').isLength({ min: 6, max: 6 }).isNumeric(),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, otp } = req.body;
 
@@ -179,7 +180,7 @@ router.post(
   '/resend-otp',
   authLimiter,
   [body('email').isEmail().normalizeEmail()],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
 
@@ -231,7 +232,7 @@ router.post(
     body('email').isEmail().normalizeEmail(),
     body('password').notEmpty().withMessage('Password required'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
 
@@ -333,7 +334,7 @@ router.post(
  * POST /api/v1/auth/refresh
  * Refresh access token
  */
-router.post('/refresh', async (req, res, next) => {
+router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.body;
 
@@ -391,7 +392,7 @@ router.post(
   '/forgot-password',
   authLimiter,
   [body('email').isEmail().normalizeEmail()],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
 
@@ -444,7 +445,7 @@ router.post(
       .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
       .withMessage('Password must be 8+ chars with uppercase, lowercase, and number'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { token, password, email } = req.body;
 
@@ -483,7 +484,7 @@ router.post(
  * POST /api/v1/auth/logout
  * Logout (client-side token removal, optional server-side token blacklist)
  */
-router.post('/logout', authenticate, async (req, res, next) => {
+router.post('/logout', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 
@@ -505,7 +506,7 @@ router.post('/logout', authenticate, async (req, res, next) => {
  * GET /api/v1/auth/me
  * Get current user info
  */
-router.get('/me', authenticate, async (req, res, next) => {
+router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 

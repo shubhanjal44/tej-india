@@ -3,6 +3,7 @@ import { query } from 'express-validator';
 import { matchingService } from '../services/matching.service';
 import { logger } from '../utils/logger';
 import { authenticate } from '../middleware/auth';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.get(
     query('remoteOnly').optional().isBoolean(),
     query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be 1-50'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const {
@@ -42,7 +43,7 @@ router.get(
           city: city as string | undefined,
           state: state as string | undefined,
           minRating: minRating ? parseFloat(minRating as string) : undefined,
-          remoteOnly: remoteOnly === 'true' || remoteOnly === true,
+         remoteOnly: remoteOnly === 'true' || remoteOnly === '1',
         },
         parseInt(limit as string)
       );
@@ -71,7 +72,7 @@ router.get(
   [
     query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be 1-50'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { skillId } = req.params;
@@ -102,7 +103,7 @@ router.get(
  * GET /api/v1/matches/stats
  * Get match statistics for the current user
  */
-router.get('/stats', async (req, res, next) => {
+router.get('/stats', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 
@@ -122,7 +123,7 @@ router.get('/stats', async (req, res, next) => {
  * Get list of skills where user can find matches
  * (Skills user teaches that others want to learn, and vice versa)
  */
-router.get('/compatible-skills', async (req, res, next) => {
+router.get('/compatible-skills', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 

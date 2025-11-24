@@ -190,7 +190,7 @@ redis.connect().catch((error) => {
 
 httpServer.listen(PORT, () => {
   const env = (process.env.NODE_ENV || 'development').padEnd(28);
-  const redisStatus = (redis.isReady ? 'Connected' : 'Unavailable').padEnd(32);
+  const redisStatus = (redis.isReady() ? 'Connected' : 'Unavailable').padEnd(32);
   
   console.log(`
     ╔═══════════════════════════════════════════╗
@@ -239,4 +239,4 @@ process.on('SIGINT', async () => {
   });
 });
 
-export { app, io };
+export { app, io }; 

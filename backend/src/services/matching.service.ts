@@ -276,8 +276,8 @@ class MatchingService {
       );
 
       if (matchingTeachSkill) {
-        const learnerLevel = levelValues[learningSkill.proficiencyLevel];
-        const teacherLevel = levelValues[matchingTeachSkill.proficiencyLevel];
+        const learnerLevel = levelValues[learningSkill.proficiencyLevel as keyof typeof levelValues];
+        const teacherLevel = levelValues[matchingTeachSkill.proficiencyLevel as keyof typeof levelValues];
 
         // Teacher should be at least same level or higher
         if (teacherLevel >= learnerLevel) {

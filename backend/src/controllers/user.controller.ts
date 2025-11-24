@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import prisma from '../config/database';
 import { logger } from '../utils/logger';
 import { authenticate } from '../middleware/auth';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.use(authenticate);
  * GET /api/v1/users/profile
  * Get current user's profile
  */
-router.get('/profile', async (req, res, next) => {
+router.get('/profile', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 
@@ -79,7 +80,7 @@ router.put(
     body('city').optional().trim().isLength({ max: 100 }).withMessage('City must be under 100 characters'),
     body('state').optional().trim().isLength({ max: 100 }).withMessage('State must be under 100 characters'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { name, phone, bio, city, state } = req.body;
@@ -131,7 +132,7 @@ router.put(
  * GET /api/v1/users/:id
  * Get public profile of any user
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
@@ -215,7 +216,7 @@ router.get('/:id', async (req, res, next) => {
  * GET /api/v1/users/search
  * Search users by name or location
  */
-router.get('/search', async (req, res, next) => {
+router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { query, city, state, limit = 20, offset = 0 } = req.query;
 

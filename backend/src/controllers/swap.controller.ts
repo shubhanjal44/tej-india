@@ -4,6 +4,7 @@ import prisma from '../config/database';
 import { logger } from '../utils/logger';
 import { authenticate } from '../middleware/auth';
 import { SwapStatus } from '@prisma/client';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post(
     body('message').optional().trim().isLength({ max: 500 }).withMessage('Message must be under 500 characters'),
     body('scheduledAt').optional().isISO8601().withMessage('Valid date required'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const initiatorId = req.user!.userId;
       const { receiverId, initiatorSkillId, receiverSkillId, message, scheduledAt } = req.body;
@@ -145,7 +146,7 @@ router.get(
     query('limit').optional().isInt({ min: 1, max: 100 }),
     query('offset').optional().isInt({ min: 0 }),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { status, type = 'all', limit = 20, offset = 0 } = req.query;
@@ -218,7 +219,7 @@ router.get(
  * GET /api/v1/swaps/:id
  * Get specific swap details
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { id } = req.params;
@@ -280,7 +281,7 @@ router.get('/:id', async (req, res, next) => {
  * PUT /api/v1/swaps/:id/accept
  * Accept a swap request
  */
-router.put('/:id/accept', async (req, res, next) => {
+router.put('/:id/accept', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { id } = req.params;
@@ -352,7 +353,7 @@ router.put('/:id/accept', async (req, res, next) => {
  * PUT /api/v1/swaps/:id/reject
  * Reject a swap request
  */
-router.put('/:id/reject', async (req, res, next) => {
+router.put('/:id/reject', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { id } = req.params;
@@ -409,7 +410,7 @@ router.put('/:id/reject', async (req, res, next) => {
 router.put(
   '/:id/cancel',
   [body('reason').optional().trim().isLength({ max: 500 })],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { id } = req.params;
@@ -469,7 +470,7 @@ router.put(
  * PUT /api/v1/swaps/:id/complete
  * Mark swap as completed (both parties must confirm)
  */
-router.put('/:id/complete', async (req, res, next) => {
+router.put('/:id/complete', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { id } = req.params;
@@ -579,7 +580,7 @@ router.post(
     body('endTime').optional().isISO8601().withMessage('Valid end time required'),
     body('notes').optional().trim().isLength({ max: 1000 }),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { id } = req.params;
@@ -653,7 +654,7 @@ router.put(
     body('endTime').optional().isISO8601(),
     body('notes').optional().trim().isLength({ max: 1000 }),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { id, sessionId } = req.params;
@@ -718,7 +719,7 @@ router.put(
  * GET /api/v1/swaps/stats
  * Get user's swap statistics
  */
-router.get('/stats', async (req, res, next) => {
+router.get('/stats', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 

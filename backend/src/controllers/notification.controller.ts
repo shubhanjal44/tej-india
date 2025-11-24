@@ -3,6 +3,7 @@ import { query, param } from 'express-validator';
 import { notificationService } from '../services/notification.service';
 import { authenticate } from '../middleware/auth';
 import * as notificationPreferencesController from './notification-preferences.controller';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.get(
     query('limit').optional().isInt({ min: 1, max: 100 }),
     query('offset').optional().isInt({ min: 0 }),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { limit = 20, offset = 0 } = req.query;
@@ -49,7 +50,7 @@ router.get(
  * GET /api/v1/notifications/unread-count
  * Get count of unread notifications
  */
-router.get('/unread-count', async (req, res, next) => {
+router.get('/unread-count', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const count = await notificationService.getUnreadCount(userId);
@@ -67,7 +68,7 @@ router.get('/unread-count', async (req, res, next) => {
  * PUT /api/v1/notifications/:id/read
  * Mark notification as read
  */
-router.put('/:id/read', async (req, res, next) => {
+router.put('/:id/read', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { id } = req.params;
@@ -94,7 +95,7 @@ router.put('/:id/read', async (req, res, next) => {
  * PUT /api/v1/notifications/mark-all-read
  * Mark all notifications as read
  */
-router.put('/mark-all-read', async (req, res, next) => {
+router.put('/mark-all-read', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const count = await notificationService.markAllAsRead(userId);

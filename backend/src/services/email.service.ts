@@ -9,8 +9,7 @@ interface SendEmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
-
+ private transporter!: nodemailer.Transporter;
   constructor() {
     // For development: Use ethereal email (test account)
     // For production: Use SendGrid or SMTP

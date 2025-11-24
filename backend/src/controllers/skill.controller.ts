@@ -3,6 +3,7 @@ import { body, param } from 'express-validator';
 import prisma from '../config/database';
 import { logger } from '../utils/logger';
 import { authenticate } from '../middleware/auth';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
  * GET /api/v1/skills/categories
  * Get all skill categories
  */
-router.get('/categories', async (req, res, next) => {
+router.get('/categories', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await prisma.skillCategory.findMany({
       include: {
@@ -34,7 +35,7 @@ router.get('/categories', async (req, res, next) => {
  * GET /api/v1/skills
  * Get all skills with optional category filter
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { category, search, limit = 50, offset = 0 } = req.query;
 
@@ -96,7 +97,7 @@ router.get('/', async (req, res, next) => {
  * GET /api/v1/skills/user
  * Get current user's skills (both teaching and learning)
  */
-router.get('/user', authenticate, async (req, res, next) => {
+router.get('/user', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
 
@@ -148,7 +149,7 @@ router.post(
     body('description').optional().trim().isLength({ max: 500 }).withMessage('Description must be under 500 chars'),
     body('isVerified').optional().isBoolean(),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { skillId, skillType, proficiencyLevel, yearsOfExperience, description, isVerified } = req.body;
@@ -230,7 +231,7 @@ router.put(
     body('yearsOfExperience').optional().isInt({ min: 0, max: 50 }).withMessage('Years must be 0-50'),
     body('description').optional().trim().isLength({ max: 500 }).withMessage('Description must be under 500 chars'),
   ],
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
       const { userSkillId } = req.params;
@@ -291,7 +292,7 @@ router.put(
  * DELETE /api/v1/skills/user/:userSkillId
  * Remove a skill from user profile
  */
-router.delete('/user/:userSkillId', authenticate, async (req, res, next) => {
+router.delete('/user/:userSkillId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
     const { userSkillId } = req.params;
@@ -335,7 +336,7 @@ router.delete('/user/:userSkillId', authenticate, async (req, res, next) => {
  * GET /api/v1/skills/user/:userId
  * Get another user's public skills
  */
-router.get('/user/:userId', async (req, res, next) => {
+router.get('/user/:userId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.params;
 
