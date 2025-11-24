@@ -17,7 +17,7 @@ import {
   Flag,
   ChevronLeft,
   ChevronRight,
-  Home,
+  // Home,
   Menu,
   X,
   Moon,
@@ -51,7 +51,7 @@ export default function Sidebar() {
     {
       title: 'Main',
       items: [
-        { name: 'Home', path: '/', icon: Home },
+        // { name: 'Home', path: '/', icon: Home },
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Profile', path: '/profile', icon: UserCircle },
       ],

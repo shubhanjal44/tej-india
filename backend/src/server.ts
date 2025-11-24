@@ -7,7 +7,6 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-
 // Load environment variables
 dotenv.config();
 
@@ -161,7 +160,9 @@ io.on('connection', (socket) => {
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
-    chatService.handleUserDisconnect(socket, currentUserId);
+    if (currentUserId) {
+      chatService.handleUserDisconnect(socket, currentUserId);
+    }
   });
 });
 
@@ -188,14 +189,17 @@ redis.connect().catch((error) => {
 });
 
 httpServer.listen(PORT, () => {
+  const env = (process.env.NODE_ENV || 'development').padEnd(28);
+  const redisStatus = (redis.isReady ? 'Connected' : 'Unavailable').padEnd(32);
+  
   console.log(`
     ╔═══════════════════════════════════════════╗
     ║  SkillSwap India Backend Server Started  ║
     ╠═══════════════════════════════════════════╣
-    ║  Environment: ${process.env.NODE_ENV?.padEnd(28) || 'development'.padEnd(28)}║
+    ║  Environment: ${env}║
     ║  Port: ${PORT.toString().padEnd(35)}║
     ║  API Version: ${API_VERSION.padEnd(30)}║
-    ║  ║  Redis: ${(redis.isReady ? 'Connected' : 'Unavailable').padEnd(32)}║
+    ║  Redis: ${redisStatus}║
     ╚═══════════════════════════════════════════╝
   `);
 });
