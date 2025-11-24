@@ -4,8 +4,9 @@ import { retryRequest, defaultRetryCondition, getErrorMessage } from '../utils/a
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 export const api = axios.create({
-  baseURL: API_URL,
-  timeout: 30000, // 30 second timeout
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 30000, 
+  withCredentials: true,// 30 second timeout
   headers: {
     'Content-Type': 'application/json',
   },
