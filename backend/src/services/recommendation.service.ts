@@ -567,8 +567,8 @@ class RecommendationService {
       .map((s: any) => s.skill.categoryId);
 
     // Factor 1: Skill exchange potential
-    const canTeachToMatch = currentTeaching.filter((s) => matchLearning.includes(s)).length;
-    const canLearnFromMatch = currentLearning.filter((s) => matchTeaching.includes(s)).length;
+   const canTeachToMatch = currentTeaching.filter((s: string) => matchLearning.includes(s)).length;
+const canLearnFromMatch = currentLearning.filter((s: string) => matchTeaching.includes(s)).length;
 
     if (canTeachToMatch > 0 && canLearnFromMatch > 0) {
       score += 50;
