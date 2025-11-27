@@ -180,7 +180,9 @@ app.use((req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const port = process.env.port || 3000;
+const host = '0.0.0.0';
+
 
 // Initialize Redis connection
 redis.connect().catch((error) => {
@@ -188,16 +190,16 @@ redis.connect().catch((error) => {
   console.warn('Server will continue without Redis caching');
 });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(port, () => {
   const env = (process.env.NODE_ENV || 'development').padEnd(28);
   const redisStatus = (redis.isReady() ? 'Connected' : 'Unavailable').padEnd(32);
   
   console.log(`
     ╔═══════════════════════════════════════════╗
-    ║  SkillSwap India Backend Server Started  ║
+    ║  tej-india India Backend Server Started  ║
     ╠═══════════════════════════════════════════╣
     ║  Environment: ${env}║
-    ║  Port: ${PORT.toString().padEnd(35)}║
+    ║  Port: ${port.toString().padEnd(35)}║
     ║  API Version: ${API_VERSION.padEnd(30)}║
     ║  Redis: ${redisStatus}║
     ╚═══════════════════════════════════════════╝

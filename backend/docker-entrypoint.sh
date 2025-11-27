@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting SkillSwap Backend..."
+echo "🚀 Starting tej-india Backend..."
 
 # Wait for database to be ready
 echo "⏳ Waiting for database..."

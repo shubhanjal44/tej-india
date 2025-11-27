@@ -51,7 +51,7 @@ class EmailService {
   async sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<boolean> {
     try {
       const info = await this.transporter.sendMail({
-        from: process.env.FROM_EMAIL || '"SkillSwap India" <noreply@skillswap.in>',
+        from: process.env.FROM_EMAIL || '"tej-india India" <noreply@tej-india.in>',
         to,
         subject,
         text: text || '',
@@ -89,12 +89,12 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">SkillSwap India 🇮🇳</div>
+              <div class="logo">tej-india India 🇮🇳</div>
               <div class="tagline">सीखो और सिखाओ - Trade Skills, Not Money</div>
             </div>
 
             <div class="content">
-              <h2>Welcome to SkillSwap India, ${name}! 🎉</h2>
+              <h2>Welcome to tej-india India, ${name}! 🎉</h2>
 
               <p>We're thrilled to have you join our community of learners and teachers!</p>
 
@@ -120,12 +120,12 @@ class EmailService {
               <p style="margin-top: 30px;">Need help? Check out our <a href="${process.env.FRONTEND_URL}/help">Quick Start Guide</a> or reply to this email.</p>
 
               <p>Happy learning! 🚀</p>
-              <p>– The SkillSwap India Team</p>
+              <p>– The tej-india India Team</p>
             </div>
 
             <div class="footer">
-              <p>You received this email because you signed up for SkillSwap India.</p>
-              <p>© 2025 SkillSwap India. All rights reserved.</p>
+              <p>You received this email because you signed up for tej-india India.</p>
+              <p>© 2025 tej-india India. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -134,9 +134,9 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: 'Welcome to SkillSwap India! 🎉',
+      subject: 'Welcome to tej-india India! 🎉',
       html,
-      text: `Welcome to SkillSwap India, ${name}! We've credited your account with 50 SkillCoins. Complete your profile to start swapping skills.`,
+      text: `Welcome to tej-india India, ${name}! We've credited your account with 50 SkillCoins. Complete your profile to start swapping skills.`,
     });
   }
 
@@ -159,7 +159,7 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">SkillSwap India 🇮🇳</div>
+              <div class="logo">tej-india India 🇮🇳</div>
             </div>
 
             <div class="content">
@@ -172,14 +172,14 @@ class EmailService {
               <p>This code will expire in <strong>10 minutes</strong>.</p>
 
               <div class="warning">
-                <strong>⚠️ Security Note:</strong> Never share this code with anyone. SkillSwap India team will never ask for this code.
+                <strong>⚠️ Security Note:</strong> Never share this code with anyone. tej-india India team will never ask for this code.
               </div>
 
               <p>If you didn't request this code, please ignore this email or contact support if you're concerned.</p>
             </div>
 
             <div class="footer">
-              <p>© 2025 SkillSwap India. All rights reserved.</p>
+              <p>© 2025 tej-india India. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -188,9 +188,9 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: `${otp} is your SkillSwap India verification code`,
+      subject: `${otp} is your tej-india India verification code`,
       html,
-      text: `Your SkillSwap India verification code is: ${otp}. This code expires in 10 minutes.`,
+      text: `Your tej-india India verification code is: ${otp}. This code expires in 10 minutes.`,
     });
   }
 
@@ -215,7 +215,7 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">SkillSwap India 🇮🇳</div>
+              <div class="logo">tej-india India 🇮🇳</div>
             </div>
 
             <div class="content">
@@ -238,7 +238,7 @@ class EmailService {
             </div>
 
             <div class="footer">
-              <p>© 2025 SkillSwap India. All rights reserved.</p>
+              <p>© 2025 tej-india India. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -247,7 +247,7 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: 'Reset Your SkillSwap India Password',
+      subject: 'Reset Your tej-india India Password',
       html,
       text: `Reset your password: ${resetUrl}. This link expires in 1 hour.`,
     });

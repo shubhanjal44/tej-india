@@ -189,7 +189,7 @@ describe('Admin Service', () => {
     it('should create admin user', async () => {
       const mockStaffUser = {
         userId: 'staff-1',
-        email: 'admin@skillswap.com',
+        email: 'admin@tej-india.com',
         name: 'Admin User',
         password: 'hashed',
         role: 'ADMIN',
@@ -201,7 +201,7 @@ describe('Admin Service', () => {
       (prisma.auditLog.create as jest.Mock).mockResolvedValueOnce({});
 
       const result = await adminService.createStaffUser({
-        email: 'admin@skillswap.com',
+        email: 'admin@tej-india.com',
         password: 'SecurePass123!',
         name: 'Admin User',
         role: 'ADMIN',

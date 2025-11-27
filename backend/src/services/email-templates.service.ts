@@ -90,7 +90,7 @@ interface DigestTemplateData {
 }
 
 class EmailTemplatesService {
-  private readonly appName = 'SkillSwap India';
+  private readonly appName = 'tej-india India';
   private readonly appUrl = process.env.APP_URL || 'http://localhost:3000';
   private readonly primaryColor = '#6366f1'; // Indigo-600
   private readonly secondaryColor = '#8b5cf6'; // Purple-600

@@ -209,7 +209,7 @@ async function main() {
     prisma.badge.create({
       data: {
         name: 'Early Adopter',
-        description: 'Join the SkillSwap community in the first month',
+        description: 'Join the tej-india community in the first month',
         icon: '🚀',
         criteria: 'REGISTRATION_DATE',
         threshold: 30,

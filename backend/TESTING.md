@@ -300,4 +300,4 @@ When adding new features:
 ---
 
 **Last Updated**: November 2024
-**Maintainer**: SkillSwap India Team
+**Maintainer**: tej-india India Team

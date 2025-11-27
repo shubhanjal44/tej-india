@@ -1,5 +1,5 @@
 #!/bin/bash
-# Database Migration Script for SkillSwap India
+# Database Migration Script for tej-india India
 
 set -e  # Exit on error
 
@@ -10,7 +10,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}SkillSwap Database Migration Tool${NC}"
+echo -e "${GREEN}tej-india Database Migration Tool${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Check if DATABASE_URL is set

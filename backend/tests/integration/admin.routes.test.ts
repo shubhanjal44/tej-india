@@ -272,7 +272,7 @@ describe('Admin Routes', () => {
 
       const newStaff = {
         userId: 'staff-1',
-        email: 'newadmin@skillswap.com',
+        email: 'newadmin@tej-india.com',
         name: 'New Admin',
         role: 'ADMIN',
         status: 'ACTIVE',
@@ -285,7 +285,7 @@ describe('Admin Routes', () => {
         .post('/api/v1/admin/staff')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          email: 'newadmin@skillswap.com',
+          email: 'newadmin@tej-india.com',
           password: 'SecurePass123!',
           name: 'New Admin',
           role: 'ADMIN',

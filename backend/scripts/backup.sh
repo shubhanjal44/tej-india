@@ -1,5 +1,5 @@
 #!/bin/bash
-# Database Backup Script for SkillSwap India
+# Database Backup Script for tej-india India
 
 set -e  # Exit on error
 
@@ -13,10 +13,10 @@ NC='\033[0m' # No Color
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_FILE="skillswap_backup_${TIMESTAMP}.sql"
+BACKUP_FILE="tej-india_backup_${TIMESTAMP}.sql"
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}SkillSwap Database Backup Tool${NC}"
+echo -e "${GREEN}tej-india Database Backup Tool${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Parse DATABASE_URL to extract connection details
