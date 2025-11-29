@@ -1,12 +1,13 @@
 import axios, { AxiosError } from 'axios';
 import { retryRequest, defaultRetryCondition, getErrorMessage } from '../utils/apiEnhancements';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+// Use env in dev, fall back to relative path in prod
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  timeout: 30000, 
-  withCredentials: true,// 30 second timeout
+  baseURL: API_URL,
+  timeout: 30000, // 30 second timeout
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -30,13 +31,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Extract and attach user-friendly error message
     const errorMessage = getErrorMessage(error);
     (error as any).userMessage = errorMessage;
 
     // Handle 401 Unauthorized
     if (error.response?.status === 401) {
-      // Don't redirect if we're already on login/register page
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/register') {
         localStorage.removeItem('token');
@@ -45,7 +44,6 @@ api.interceptors.response.use(
       }
     }
 
-    // Log errors in development
     if (import.meta.env.DEV) {
       console.error('API Error:', {
         url: error.config?.url,
@@ -59,23 +57,21 @@ api.interceptors.response.use(
   }
 );
 
-/**
- * Helper function to make API calls with retry logic
- */
+// Helper with retry logic
 export const apiWithRetry = {
-  get: <T = any>(url: string, config?: any) =>
-    retryRequest(() => api.get<T>(url, config), { maxRetries: 2 }),
+  get:  <T = any>(url: string, config?: any) =>
+    retryRequest(() => api.get<T>(url, config), { maxRetries: 2, retryCondition: defaultRetryCondition }),
 
   post: <T = any>(url: string, data?: any, config?: any) =>
     api.post<T>(url, data, config), // Don't retry POST by default
 
-  put: <T = any>(url: string, data?: any, config?: any) =>
+  put:  <T = any>(url: string, data?: any, config?: any) =>
     api.put<T>(url, data, config),
 
-  patch: <T = any>(url: string, data?: any, config?: any) =>
+  patch:<T = any>(url: string, data?: any, config?: any) =>
     api.patch<T>(url, data, config),
 
-  delete: <T = any>(url: string, config?: any) =>
+  delete:<T = any>(url: string, config?: any) =>
     api.delete<T>(url, config),
 };
 
