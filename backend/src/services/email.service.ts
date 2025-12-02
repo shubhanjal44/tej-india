@@ -15,12 +15,12 @@ class EmailService {
     // For production: Use SendGrid or SMTP
     if (process.env.NODE_ENV === 'production') {
       this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
+        host: "smtp.gmail.com",
+        port: 587,
         secure: false,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD,
+          user: "tejindiateam@gmail.com",
+          pass: "eglv lgxg mbiq iiuv",
         },
       });
     } else {
