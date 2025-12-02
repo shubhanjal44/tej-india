@@ -1,4 +1,4 @@
-# SkillSwap India - Post-Launch Roadmap
+# Tej India - Post-Launch Roadmap
 
 **Version**: 1.0
 **Period**: Months 1-12 Post-Launch
@@ -23,7 +23,7 @@
 ## Executive Summary
 
 ### Mission
-Continuously improve SkillSwap India based on real user feedback, data-driven insights, and market demands while maintaining platform stability and user satisfaction.
+Continuously improve Tej India based on real user feedback, data-driven insights, and market demands while maintaining platform stability and user satisfaction.
 
 ### Key Objectives (Year 1 Post-Launch)
 - Achieve **100,000 registered users**
@@ -675,7 +675,7 @@ Verification Levels:
 
 ## Conclusion
 
-This post-launch roadmap provides a structured approach to continuous improvement and scaling of SkillSwap India. Success depends on:
+This post-launch roadmap provides a structured approach to continuous improvement and scaling of Tej India. Success depends on:
 
 1. **User-centric development**
 2. **Data-driven decisions**

@@ -1,6 +1,6 @@
-# SkillSwap India - Deployment Guide
+# Tej India - Deployment Guide
 
-Complete guide for deploying SkillSwap India platform from local development to production.
+Complete guide for deploying Tej India platform from local development to production.
 
 ## Table of Contents
 
@@ -483,11 +483,11 @@ sudo journalctl -u docker -f
 
 # Optimize database
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "VACUUM ANALYZE;"
+  psql -U TejIndia-d skillswap_db -c "VACUUM ANALYZE;"
 
 # Check database size
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "SELECT pg_size_pretty(pg_database_size('skillswap_db'));"
+  psql -U TejIndia-d skillswap_db -c "SELECT pg_size_pretty(pg_database_size('skillswap_db'));"
 ```
 
 ### Updates
@@ -514,7 +514,7 @@ Create cron job:
 crontab -e
 
 # Add daily backup at 2 AM
-0 2 * * * cd /opt/skillswap && ./backend/scripts/backup.sh create >> /var/log/skillswap-backup.log 2>&1
+0 2 * * * cd /opt/TejIndia&& ./backend/scripts/backup.sh create >> /var/log/skillswap-backup.log 2>&1
 ```
 
 ---
@@ -545,11 +545,11 @@ docker-compose -f docker-compose.prod.yml exec postgres pg_isready
 
 # Connect to database
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db
+  psql -U TejIndia-d skillswap_db
 
 # Check connections
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "SELECT count(*) FROM pg_stat_activity;"
+  psql -U TejIndia-d skillswap_db -c "SELECT count(*) FROM pg_stat_activity;"
 ```
 
 ### Redis Connection Issues
@@ -605,7 +605,7 @@ docker-compose -f docker-compose.prod.yml down
 # 2. Restore database from backup
 LATEST_BACKUP=$(ls -t backups/pre-deploy-*.sql.gz | head -1)
 gunzip -c $LATEST_BACKUP | docker-compose -f docker-compose.prod.yml exec -T postgres \
-  psql -U skillswap skillswap_db
+  psql -U TejIndiaskillswap_db
 
 # 3. Checkout previous version
 git checkout <previous-commit-hash>

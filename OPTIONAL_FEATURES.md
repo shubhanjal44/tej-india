@@ -1,6 +1,6 @@
 # Optional Features Configuration Guide
 
-**SkillSwap India - Optional Services Setup**
+**Tej India - Optional Services Setup**
 
 This guide explains optional features that enhance the platform but are NOT required for core functionality.
 

@@ -1,4 +1,4 @@
-# SkillSwap India - Gamification System Implementation
+# Tej India - Gamification System Implementation
 
 **Completed:** Week 13-16 (2025-11-16)
 **Status:** ✅ 100% Complete

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SkillSwap India application now features a comprehensive navigation system with a beautiful, fully-functional sidebar that provides easy access to all pages and features.
+The Tej India application now features a comprehensive navigation system with a beautiful, fully-functional sidebar that provides easy access to all pages and features.
 
 ## Features
 

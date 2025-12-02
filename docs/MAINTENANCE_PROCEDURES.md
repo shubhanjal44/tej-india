@@ -1,4 +1,4 @@
-# SkillSwap India - Maintenance Procedures
+# Tej India - Maintenance Procedures
 
 **Version**: 1.0
 **Last Updated**: January 2025
@@ -143,16 +143,16 @@ grep "slow query" /opt/skillswap/logs/combined.log
 ```bash
 # Vacuum and analyze
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "VACUUM ANALYZE;"
+  psql -U TejIndia-d skillswap_db -c "VACUUM ANALYZE;"
 
 # Check database size
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c \
+  psql -U TejIndia-d skillswap_db -c \
   "SELECT pg_size_pretty(pg_database_size('skillswap_db'));"
 
 # Identify bloated tables
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c \
+  psql -U TejIndia-d skillswap_db -c \
   "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
    FROM pg_tables
    ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
@@ -230,7 +230,7 @@ npm test
 ```bash
 # 1. Identify slow queries
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c \
+  psql -U TejIndia-d skillswap_db -c \
   "SELECT query, mean_exec_time, calls
    FROM pg_stat_statements
    ORDER BY mean_exec_time DESC
@@ -293,11 +293,11 @@ sudo ufw status verbose
 
 # 2. Analyze all tables
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "ANALYZE;"
+  psql -U TejIndia-d skillswap_db -c "ANALYZE;"
 
 # 3. Reindex (if fragmentation > 20%)
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "REINDEX DATABASE skillswap_db;"
+  psql -U TejIndia-d skillswap_db -c "REINDEX DATABASE skillswap_db;"
 
 # 4. Check for missing indexes
 # Review slow query log
@@ -305,7 +305,7 @@ docker-compose -f docker-compose.prod.yml exec postgres \
 
 # 5. Update statistics
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "VACUUM FULL ANALYZE;"
+  psql -U TejIndia-d skillswap_db -c "VACUUM FULL ANALYZE;"
 
 # 6. Verify backup integrity
 ./backend/scripts/backup.sh verify latest
@@ -401,7 +401,7 @@ LIMIT 20;
 #### Automated Daily Backups
 ```bash
 # Cron job (runs at 2 AM daily)
-0 2 * * * cd /opt/skillswap && ./backend/scripts/backup.sh create
+0 2 * * * cd /opt/TejIndia&& ./backend/scripts/backup.sh create
 ```
 
 #### Backup Types
@@ -442,7 +442,7 @@ docker-compose -f docker-compose.prod.yml stop backend frontend
 
 # 4. Verify restoration
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db -c "SELECT COUNT(*) FROM users;"
+  psql -U TejIndia-d skillswap_db -c "SELECT COUNT(*) FROM users;"
 
 # 5. Start application
 docker-compose -f docker-compose.prod.yml up -d
@@ -620,7 +620,7 @@ docker-compose -f docker-compose.prod.yml stop
 
 # 2. Assess corruption
 docker-compose -f docker-compose.prod.yml exec postgres \
-  psql -U skillswap -d skillswap_db
+  psql -U TejIndia-d skillswap_db
 
 # Try to query tables
 

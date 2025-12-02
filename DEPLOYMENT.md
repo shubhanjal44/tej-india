@@ -1,8 +1,8 @@
-# SkillSwap India - Deployment Guide
+# Tej India - Deployment Guide
 
 ## 🚀 Production Deployment
 
-This guide covers deploying SkillSwap India to production.
+This guide covers deploying Tej India to production.
 
 ## Prerequisites
 
@@ -505,4 +505,4 @@ psql -h localhost -U skillswap_user -d skillswap_prod
 
 ---
 
-**Your SkillSwap India platform is now live! 🚀**
+**Your Tej India platform is now live! 🚀**

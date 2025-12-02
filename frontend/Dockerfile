@@ -1,4 +1,4 @@
-# SkillSwap Frontend - Multi-stage Docker Build
+# TejIndiaFrontend - Multi-stage Docker Build
 # Stage 1: Build stage
 FROM node:18-alpine AS builder
 

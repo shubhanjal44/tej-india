@@ -1,4 +1,4 @@
-# SkillSwap India - Complete Project Summary
+# Tej India - Complete Project Summary
 
 **Project Status**: Production Ready ✅
 **Completion**: 100% (48-week roadmap + Post-launch planning)
@@ -8,7 +8,7 @@
 
 ## 🎯 Executive Summary
 
-SkillSwap India is a **comprehensive skill-sharing platform** that connects people who want to learn new skills with those willing to teach, facilitating meaningful skill exchanges across India. The platform is now **100% complete** and **production-ready** with all core features, advanced capabilities, comprehensive documentation, and post-launch planning in place.
+Tej India is a **comprehensive skill-sharing platform** that connects people who want to learn new skills with those willing to teach, facilitating meaningful skill exchanges across India. The platform is now **100% complete** and **production-ready** with all core features, advanced capabilities, comprehensive documentation, and post-launch planning in place.
 
 ### Key Achievements
 - ✅ **48-week development roadmap completed**
@@ -497,7 +497,7 @@ cd frontend && npm run build
 
 ## 💡 Key Differentiators
 
-### Why SkillSwap India Stands Out
+### Why Tej India Stands Out
 
 1. **True Skill Exchange** - Not just a marketplace, genuine peer-to-peer learning
 2. **AI-Powered Matching** - Intelligent algorithms for perfect skill partners
@@ -558,7 +558,7 @@ cd frontend && npm run build
 
 ## 🎉 Conclusion
 
-SkillSwap India is a **production-ready, enterprise-grade skill-sharing platform** with:
+Tej India is a **production-ready, enterprise-grade skill-sharing platform** with:
 
 ✅ **Complete Feature Set** - All core and advanced features
 ✅ **Robust Architecture** - Scalable, secure, performant

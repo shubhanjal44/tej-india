@@ -199,7 +199,7 @@ export default function RegisterPage() {
               <span className="text-2xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">S</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold">SkillSwap India</h1>
+              <h1 className="text-3xl font-bold">Tej India</h1>
               <p className="text-blue-100 text-sm">सीखो और सिखाओ</p>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function RegisterPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">S</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">SkillSwap India</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Tej India</h1>
             </div>
           </div>
 

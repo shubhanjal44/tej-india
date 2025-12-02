@@ -1,4 +1,4 @@
-# SkillSwap India - Feature Plan & Roadmap
+# Tej India - Feature Plan & Roadmap
 
 **Version**: 1.0
 **Last Updated**: November 2025
@@ -772,5 +772,5 @@ Enable every Indian to trade their skills instead of money, creating a community
 ---
 
 **Next Update**: December 2025
-**Owner**: SkillSwap India Product Team
+**Owner**: Tej India Product Team
 **Status**: Living Document

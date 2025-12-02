@@ -347,7 +347,7 @@ export function openRazorpayCheckout(
     amount: orderData.amount,
     currency: orderData.currency,
     order_id: orderData.orderId,
-    name: 'SkillSwap India',
+    name: 'Tej India',
     description: 'Premium Subscription',
     image: '/logo.png',
     handler: function (response: any) {

@@ -1,4 +1,4 @@
-# SkillSwap India - Launch Checklist
+# Tej India - Launch Checklist
 
 Complete pre-launch checklist to ensure a successful platform launch.
 

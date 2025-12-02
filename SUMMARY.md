@@ -1,6 +1,6 @@
-# SkillSwap India - Project Implementation Summary
+# Tej India - Project Implementation Summary
 
-**Project:** SkillSwap India - Peer-to-Peer Skill Exchange Platform
+**Project:** Tej India - Peer-to-Peer Skill Exchange Platform
 **Completion Date:** 2025-11-15
 **Status:** ✅ Weeks 1-6 Complete | Full-Stack MVP Ready
 **Overall Progress:** 25% Complete (6/48 weeks of planned roadmap)
@@ -9,7 +9,7 @@
 
 ## 📋 Executive Summary
 
-Successfully developed a **full-stack MVP** for SkillSwap India, a peer-to-peer skill exchange platform that enables users to teach skills they know and learn skills they want to master, without monetary transactions. The platform uses a gamified coin-based system for fair exchanges.
+Successfully developed a **full-stack MVP** for Tej India, a peer-to-peer skill exchange platform that enables users to teach skills they know and learn skills they want to master, without monetary transactions. The platform uses a gamified coin-based system for fair exchanges.
 
 ### Key Achievements
 - ✅ Complete **backend REST API** with 39 endpoints
@@ -649,7 +649,7 @@ See [IMPROVEMENTS.md](./IMPROVEMENTS.md) for comprehensive list including:
 
 ## ✨ Conclusion
 
-Successfully developed a **production-ready MVP** for SkillSwap India with:
+Successfully developed a **production-ready MVP** for Tej India with:
 - ✅ **7,500+ lines** of clean, type-safe code
 - ✅ **39 REST API endpoints** with comprehensive validation
 - ✅ **Full authentication** and authorization system

@@ -1,4 +1,4 @@
-# SkillSwap India - Development Progress Tracker
+# Tej India - Development Progress Tracker
 
 **Last Updated:** 2025-11-16
 **Current Phase:** Week 1-48 Complete ✅ (Full 48-Week Roadmap Completed!)

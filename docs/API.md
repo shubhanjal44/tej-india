@@ -1,6 +1,6 @@
-# SkillSwap India - API Documentation
+# Tej India - API Documentation
 
-Complete API reference for SkillSwap India platform.
+Complete API reference for Tej India platform.
 
 **Base URL**: `https://api.skillswap.in/api/v1`
 **Version**: 1.0.0
@@ -31,7 +31,7 @@ Complete API reference for SkillSwap India platform.
 
 ### Overview
 
-SkillSwap India uses JWT (JSON Web Tokens) for authentication. Include the token in the `Authorization` header for all authenticated requests.
+Tej India uses JWT (JSON Web Tokens) for authentication. Include the token in the `Authorization` header for all authenticated requests.
 
 ```http
 Authorization: Bearer <your_token_here>

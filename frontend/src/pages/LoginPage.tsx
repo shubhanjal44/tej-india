@@ -108,7 +108,7 @@ export default function LoginPage() {
                 <span className="text-2xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">S</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold">SkillSwap India</h1>
+                <h1 className="text-3xl font-bold">Tej India</h1>
                 <p className="text-blue-100 text-sm">सीखो और सिखाओ</p>
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">S</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">SkillSwap India</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Tej India</h1>
             </div>
             <p className="text-gray-600">सीखो और सिखाओ</p>
           </div>
@@ -285,7 +285,7 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500 font-medium">New to SkillSwap India?</span>
+                  <span className="px-4 bg-white text-gray-500 font-medium">New to Tej India?</span>
                 </div>
               </div>
             </div>

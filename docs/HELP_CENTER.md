@@ -1,6 +1,6 @@
-# SkillSwap India - Help Center
+# Tej India - Help Center
 
-Welcome to the SkillSwap India Help Center! Find answers to common questions and learn how to make the most of the platform.
+Welcome to the Tej India Help Center! Find answers to common questions and learn how to make the most of the platform.
 
 ---
 
@@ -21,9 +21,9 @@ Welcome to the SkillSwap India Help Center! Find answers to common questions and
 
 ## Getting Started
 
-### What is SkillSwap India?
+### What is Tej India?
 
-SkillSwap India is a platform that connects people who want to learn new skills with those willing to teach. Instead of paying money, you exchange skills - you teach something you're good at, and in return, you learn something new!
+Tej India is a platform that connects people who want to learn new skills with those willing to teach. Instead of paying money, you exchange skills - you teach something you're good at, and in return, you learn something new!
 
 ### How does skill swapping work?
 
@@ -33,7 +33,7 @@ SkillSwap India is a platform that connects people who want to learn new skills 
 4. **Connect & learn** - Once accepted, schedule sessions and start learning!
 5. **Leave reviews** - After completing swaps, rate your experience to help the community
 
-### Is SkillSwap India free?
+### Is Tej India free?
 
 Yes! The basic platform is completely free. We also offer Premium and Pro subscriptions with additional features like unlimited swaps, priority matching, and advanced analytics.
 
@@ -64,7 +64,7 @@ Any skill! Popular categories include:
 
 ### How do I verify my email?
 
-1. Check your inbox for a verification email from SkillSwap India
+1. Check your inbox for a verification email from Tej India
 2. Click the verification link
 3. Your account will be verified automatically
 
@@ -291,7 +291,7 @@ Our moderation team will review within 24 hours.
 
 ### What are events?
 
-Events are gatherings where SkillSwap members can:
+Events are gatherings where TejIndiamembers can:
 - Learn new skills together
 - Network with other learners and teachers
 - Attend workshops and webinars
@@ -607,7 +607,7 @@ Yes! Join our Community Guidelines community to:
 - Ask questions
 - Share experiences
 - Get tips from experienced users
-- Connect with the SkillSwap team
+- Connect with the TejIndiateam
 
 ---
 

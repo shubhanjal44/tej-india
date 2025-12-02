@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🎉 SKILLSWAP INDIA - COMPLETE PROJECT FINALIZATION"
+echo "🎉 Tej India - COMPLETE PROJECT FINALIZATION"
 echo "=================================================="
 echo ""
 
@@ -44,5 +44,5 @@ echo "  5. Seed database: cd backend && npx prisma db seed"
 echo "  6. Start backend: cd backend && npm run dev"
 echo "  7. Start frontend: cd frontend && npm run dev"
 echo ""
-echo "🚀 Your SkillSwap India platform is ready to launch!"
+echo "🚀 Your Tej India platform is ready to launch!"
 echo ""

@@ -1,8 +1,8 @@
-# SkillSwap India - Complete Project Overview
+# Tej India - Complete Project Overview
 
-## 🎯 What is SkillSwap India?
+## 🎯 What is Tej India?
 
-**SkillSwap India** is India's first peer-to-peer skill exchange platform that enables users to learn new skills without spending money. Instead of paying for courses, users trade skills with each other.
+**Tej India** is India's first peer-to-peer skill exchange platform that enables users to learn new skills without spending money. Instead of paying for courses, users trade skills with each other.
 
 ### Core Concept
 **"सीखो और सिखाओ - Trade Skills, Not Money"**
@@ -37,7 +37,7 @@
 
 ## 💡 Our Solution
 
-### How SkillSwap Works
+### How TejIndiaWorks
 
 1. **Create Profile** - Add skills you can teach and want to learn (2 minutes)
 2. **Get Matched** - AI finds perfect matches based on complementary skills
@@ -318,4 +318,4 @@ MIT License - See LICENSE file for details
 
 **Built with ❤️ for India's youth**
 
-*Transform from LiveData (file storage) to SkillSwap India (peer-to-peer skill exchange)*
+*Transform from LiveData (file storage) to Tej India (peer-to-peer skill exchange)*

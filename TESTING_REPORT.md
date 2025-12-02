@@ -1,4 +1,4 @@
-# SkillSwap India - Testing & Verification Report
+# Tej India - Testing & Verification Report
 
 **Date:** November 16, 2025
 **Branch:** `claude/skill-sharing-app-design-01VVTWRDjKDE1NVe8RFqXEoJ`

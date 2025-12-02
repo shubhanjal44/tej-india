@@ -133,7 +133,7 @@ export default function Leaderboard({
           <h2 className="text-2xl font-bold">Leaderboard</h2>
         </div>
         <p className="text-indigo-100 text-sm">
-          Top performers in the SkillSwap community
+          Top performers in the TejIndiacommunity
         </p>
       </div>
 

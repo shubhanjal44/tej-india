@@ -1,7 +1,7 @@
 {
   "name": "skillswap-frontend",
   "version": "1.0.0",
-  "description": "SkillSwap India - Peer-to-Peer Skill Exchange Platform Frontend",
+  "description": "Tej India - Peer-to-Peer Skill Exchange Platform Frontend",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,4 +1,4 @@
-# SkillSwap India - Build & Deployment Verification
+# Tej India - Build & Deployment Verification
 
 **Date:** 2025-11-15
 **Status:** ✅ ALL CHECKS PASSED

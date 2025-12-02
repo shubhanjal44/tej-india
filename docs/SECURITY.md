@@ -1,4 +1,4 @@
-# SkillSwap India - Security Guide
+# Tej India - Security Guide
 
 Comprehensive security configuration and best practices for production deployment.
 
@@ -66,7 +66,7 @@ chmod 700 backend/scripts/*.sh
 ALTER USER postgres WITH PASSWORD 'strong_password';
 
 -- 2. Create application-specific user with limited privileges
-CREATE USER skillswap WITH PASSWORD 'app_password';
+CREATE USER TejIndiaWITH PASSWORD 'app_password';
 GRANT CONNECT ON DATABASE skillswap_db TO skillswap;
 GRANT USAGE ON SCHEMA public TO skillswap;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO skillswap;
@@ -90,7 +90,7 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
 local   all             all                                     peer
 host    all             all             127.0.0.1/32            scram-sha-256
-hostssl skillswap_db    skillswap       <app-server-ip>/32      scram-sha-256
+hostssl skillswap_db    TejIndia      <app-server-ip>/32      scram-sha-256
 ```
 
 ### Backup Encryption

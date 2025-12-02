@@ -1,6 +1,6 @@
-# SkillSwap India - Setup Guide
+# Tej India - Setup Guide
 
-**Complete setup instructions for running SkillSwap India locally**
+**Complete setup instructions for running Tej India locally**
 
 ---
 
@@ -243,7 +243,7 @@ Should return:
 
 Visit: http://localhost:3000
 
-You should see the SkillSwap India homepage.
+You should see the Tej India homepage.
 
 ### Check Database
 

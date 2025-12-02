@@ -1,6 +1,6 @@
-# SkillSwap India - Complete Setup Guide
+# Tej India - Complete Setup Guide
 
-This guide will help you set up the SkillSwap India project locally for development.
+This guide will help you set up the Tej India project locally for development.
 
 ---
 
@@ -120,14 +120,14 @@ SMTP_HOST=smtp.ethereal.email
 SMTP_PORT=587
 SMTP_USER=auto-generated-on-first-run
 SMTP_PASSWORD=auto-generated-on-first-run
-FROM_EMAIL="SkillSwap India <noreply@skillswap.in>"
+FROM_EMAIL="Tej India <noreply@skillswap.in>"
 
 # Email Configuration (Production) - Uncomment and configure for production
 # SMTP_HOST=smtp.sendgrid.net
 # SMTP_PORT=587
 # SMTP_USER=apikey
 # SMTP_PASSWORD=your-sendgrid-api-key
-# FROM_EMAIL="SkillSwap India <noreply@skillswap.in>"
+# FROM_EMAIL="Tej India <noreply@skillswap.in>"
 
 # Frontend URL
 FRONTEND_URL=http://localhost:3000
@@ -166,7 +166,7 @@ The `docker-compose.yml` file includes PostgreSQL, Redis, and pgAdmin.
    - Email: `admin@skillswap.in`
    - Password: `admin123`
 3. Add Server:
-   - Name: SkillSwap DB
+   - Name: TejIndiaDB
    - Host: `postgres` (container name)
    - Port: `5432`
    - Database: `skillswap_db`

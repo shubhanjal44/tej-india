@@ -1,6 +1,6 @@
 # Performance Optimization Documentation
 
-This document outlines all performance optimizations implemented in the SkillSwap India platform during Week 33-36.
+This document outlines all performance optimizations implemented in the Tej India platform during Week 33-36.
 
 ## Table of Contents
 

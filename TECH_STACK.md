@@ -1,4 +1,4 @@
-# SkillSwap India - Complete Tech Stack Documentation
+# Tej India - Complete Tech Stack Documentation
 
 **Version**: 1.0
 **Last Updated**: November 2025
@@ -840,7 +840,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - run: docker build -t skillswap .
+      - run: docker build -t TejIndia.
       - run: docker push skillswap
 ```
 
@@ -1284,4 +1284,4 @@ main (production)
 
 **Last Updated**: November 2025
 **Next Review**: December 2025
-**Maintained By**: SkillSwap India Tech Team
+**Maintained By**: Tej India Tech Team

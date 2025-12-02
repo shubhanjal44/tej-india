@@ -1,4 +1,4 @@
-# SkillSwap India 🇮🇳
+# Tej India 🇮🇳
 
 **सीखो और सिखाओ - Trade Skills, Not Money**
 
@@ -13,9 +13,9 @@ India's first peer-to-peer skill exchange platform empowering youth to learn wit
 
 ---
 
-## 🌟 What is SkillSwap India?
+## 🌟 What is Tej India?
 
-SkillSwap India enables users to **learn new skills for free** by trading skills with peers instead of paying for courses.
+Tej India enables users to **learn new skills for free** by trading skills with peers instead of paying for courses.
 
 ### The Problem
 - **83% of Indian engineering graduates are unemployable** (NASSCOM)
@@ -468,7 +468,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🙏 Acknowledgments
 
-- Original codebase transformed from **LiveData** (file storage) to **SkillSwap India**
+- Original codebase transformed from **LiveData** (file storage) to **Tej India**
 - Inspired by global platforms like Simbi (USA) and TimeRepublik (Switzerland)
 - Built to solve India's youth employability crisis
 
@@ -574,4 +574,4 @@ npx prisma studio
 
 **Built with ❤️ for India's youth | सीखो और सिखाओ 🇮🇳**
 
-*Transform your skills into opportunities. Join the SkillSwap revolution!*
+*Transform your skills into opportunities. Join the TejIndiarevolution!*

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains the dark/light mode implementation and performance optimizations added to the SkillSwap India application.
+This document explains the dark/light mode implementation and performance optimizations added to the Tej India application.
 
 ---
 

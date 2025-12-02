@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains the advanced features added to SkillSwap India:
+This document explains the advanced features added to Tej India:
 1. **Smart Search** - Real-time search with backend API
 2. **Notification Count** - Live unread notification badge
 3. **Favorite Pages** - Pin your most-used pages

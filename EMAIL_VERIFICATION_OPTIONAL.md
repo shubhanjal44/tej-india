@@ -1,6 +1,6 @@
 # Email Verification - Optional Configuration
 
-**SkillSwap India - Email Verification is OPTIONAL**
+**Tej India - Email Verification is OPTIONAL**
 
 ---
 

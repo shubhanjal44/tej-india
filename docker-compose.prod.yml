@@ -1,4 +1,4 @@
-# SkillSwap India - Docker Compose Production Environment
+# Tej India - Docker Compose Production Environment
 version: '3.8'
 
 services:

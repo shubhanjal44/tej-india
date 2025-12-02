@@ -1,9 +1,9 @@
-# SkillSwap India - Improvements & Suggestions
+# Tej India - Improvements & Suggestions
 
 **Last Updated:** 2025-11-15
 **Current Version:** v1.0 (Weeks 1-6 Complete)
 
-This document outlines suggested improvements, optimizations, and future enhancements for the SkillSwap India platform.
+This document outlines suggested improvements, optimizations, and future enhancements for the Tej India platform.
 
 ---
 
@@ -118,7 +118,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'SkillSwap India API',
+      title: 'Tej India API',
       version: '1.0.0',
       description: 'Peer-to-peer skill exchange platform API',
     },

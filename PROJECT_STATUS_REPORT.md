@@ -1,4 +1,4 @@
-# SkillSwap India - Project Status Report
+# Tej India - Project Status Report
 **Date:** November 16, 2025
 **Branch:** `claude/review-project-progress-01WvsP1sF5hi8gHtEohw7Y7L`
 **Overall Progress:** 25% Complete (Weeks 1-6 of 48-week roadmap)
@@ -7,7 +7,7 @@
 
 ## 📊 Executive Summary
 
-Your **SkillSwap India** project has made excellent progress! You've successfully completed the **foundational phase** (Weeks 1-6) with a production-ready backend API, functional frontend, and core features implemented.
+Your **Tej India** project has made excellent progress! You've successfully completed the **foundational phase** (Weeks 1-6) with a production-ready backend API, functional frontend, and core features implemented.
 
 ### Current Status
 ✅ **Backend API:** Fully functional with 39 REST endpoints

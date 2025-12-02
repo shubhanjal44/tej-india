@@ -1,4 +1,4 @@
-# SkillSwap India - Real-time Chat System Implementation
+# Tej India - Real-time Chat System Implementation
 
 **Completed:** Week 9-10 (2025-11-16)
 **Status:** ✅ 100% Complete
