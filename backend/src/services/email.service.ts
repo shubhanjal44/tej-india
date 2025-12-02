@@ -29,17 +29,18 @@ class EmailService {
     }
   }
 
-  private async createTestAccount() {
+private async createTestAccount() {
     try {
       const testAccount = await nodemailer.createTestAccount();
       this.transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
+        // host: 'smtp.gmail.com',
+        host: 'smtp.gmail.com',
         port: 587,
         secure: false,
         auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
+    user: "tejindiateam@gmail.com",
+    pass: "eglv lgxg mbiq iiuv",
+        },
       });
         logger.info(`📧 Email test account created: ${testAccount.user}, ${testAccount.pass}`);
         
