@@ -40,7 +40,7 @@ private async createTestAccount() {
         auth: {
     user: "tejindiateam@gmail.com",
     pass: "eglv lgxg mbiq iiuv",
-        },
+        },
       });
         logger.info(`📧 Email test account created: ${testAccount.user}, ${testAccount.pass}`);
         
