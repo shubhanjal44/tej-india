@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -11,13 +11,11 @@ import {
   CreditCard,
   Bell,
   UserCircle,
-  Settings,
   Shield,
   UserCog,
   Flag,
   ChevronLeft,
   ChevronRight,
-  // Home,
   Menu,
   X,
   Moon,
@@ -38,20 +36,47 @@ interface NavItem {
 interface NavSection {
   title: string;
   items: NavItem[];
+  requiresAdmin?: boolean; // Add this flag
 }
 
 export default function Sidebar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
   const { theme, toggleTheme } = useThemeStore();
   const { favorites, toggleFavorite, isFavorite } = useFavoritesStore();
+
+  // Fetch user role on component mount
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:5000/api/v1/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   const navSections: NavSection[] = [
     {
       title: 'Main',
       items: [
-        // { name: 'Home', path: '/', icon: Home },
+         //name: 'Home', path: '/', icon: Home },
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Profile', path: '/profile', icon: UserCircle },
       ],
@@ -82,6 +107,7 @@ export default function Sidebar() {
     },
     {
       title: 'Admin',
+      requiresAdmin: true, // Mark this section as admin-only
       items: [
         { name: 'Admin Dashboard', path: '/admin', icon: Shield },
         { name: 'Manage Users', path: '/admin/users', icon: UserCog },
@@ -89,6 +115,14 @@ export default function Sidebar() {
       ],
     },
   ];
+
+  // Filter sections based on user role
+  const filteredNavSections = navSections.filter(section => {
+    if (section.requiresAdmin) {
+      return userRole === 'ADMIN';
+    }
+    return true;
+  });
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -154,8 +188,8 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* Main Navigation Sections */}
-        {navSections.map((section) => (
+        {/* Main Navigation Sections - Use filtered sections */}
+        {filteredNavSections.map((section) => (
           <div key={section.title}>
             {!isCollapsed && (
               <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

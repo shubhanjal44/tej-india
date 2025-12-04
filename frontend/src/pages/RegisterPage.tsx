@@ -44,9 +44,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
 
   const {
     register,
@@ -62,46 +59,44 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      const response = await authService.register(data);
+      // Register the user
+      const registerResponse = await authService.register(data);
 
-      if (response.success) {
-        setEmail(data.email);
-        setShowVerification(true);
-        toast.success('Registration successful! Please verify your email.');
+      if (registerResponse.success) {
+        // Automatically login after successful registration
+        try {
+          const loginResponse = await authService.login({
+            email: data.email,
+            password: data.password
+          });
+
+          if (loginResponse.success && loginResponse.data) {
+            // Store tokens
+            localStorage.setItem('accessToken', loginResponse.data.accessToken);
+            localStorage.setItem('refreshToken', loginResponse.data.refreshToken);
+            
+            // Store user data if needed
+            if (loginResponse.data.user) {
+              localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
+            }
+
+            toast.success('Account created successfully! Welcome to Tej India! 🎉');
+            
+            // Redirect to dashboard
+            navigate('/dashboard');
+          }
+        } catch (loginError: any) {
+          // If auto-login fails, redirect to login page
+          console.error('Auto-login failed:', loginError);
+          toast.success('Registration successful! Please login to continue.');
+          navigate('/login');
+        }
       }
     } catch (error: any) {
       const message = error.response?.data?.message || 'Registration failed. Please try again.';
       toast.error(message);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const response = await authService.verifyEmail({ email, otp });
-
-      if (response.success) {
-        toast.success('Email verified successfully!');
-        navigate('/login');
-      }
-    } catch (error: any) {
-      const message = error.response?.data?.message || 'Verification failed. Please try again.';
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    try {
-      await authService.resendOtp(email);
-      toast.success('OTP resent successfully!');
-    } catch (error: any) {
-      toast.error('Failed to resend OTP');
     }
   };
 
@@ -122,66 +117,6 @@ export default function RegisterPage() {
   };
 
   const passwordStrength = getPasswordStrength();
-
-  if (showVerification) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
-            <p className="text-gray-600">We sent a 6-digit code to</p>
-            <p className="text-blue-600 font-medium">{email}</p>
-          </div>
-
-          <form onSubmit={handleVerification} className="space-y-5">
-            <div>
-              <label htmlFor="otp" className="block text-sm font-semibold text-gray-700 mb-2">
-                Verification Code
-              </label>
-              <input
-                type="text"
-                id="otp"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-4 py-3 text-center text-2xl tracking-widest border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"
-                placeholder="000000"
-                maxLength={6}
-                disabled={isLoading}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
-              disabled={isLoading || otp.length !== 6}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Verifying...</span>
-                </div>
-              ) : (
-                'Verify Email'
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
-            <button
-              onClick={handleResendOtp}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Resend Code
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex">
