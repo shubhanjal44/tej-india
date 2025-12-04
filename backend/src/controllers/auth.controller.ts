@@ -10,13 +10,16 @@ import { authLimiter } from '../middleware/rateLimiter';
 import { authenticate } from '../middleware/auth';
 import { Request, Response, NextFunction } from 'express';
 
+
 const router = Router();
+
 
 interface JWTPayload {
   userId: string;
   email: string;
   role: string;
 }
+
 
 // Helper to generate tokens
 const generateTokens = (userId: string, email: string, role: string) => {
@@ -27,6 +30,7 @@ const generateTokens = (userId: string, email: string, role: string) => {
     { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
   );
 
+
   // @ts-ignore - Known typing issue with jsonwebtoken
   const refreshToken = jwt.sign(
     { userId, email, role },
@@ -34,8 +38,10 @@ const generateTokens = (userId: string, email: string, role: string) => {
     { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
   );
 
+
   return { accessToken, refreshToken };
 };
+
 
 /**
  * POST /api/v1/auth/register
@@ -57,10 +63,12 @@ router.post(
     try {
       const { email, password, name, phone } = req.body;
 
+
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
+
 
       if (existingUser) {
         return res.status(400).json({
@@ -69,8 +77,10 @@ router.post(
         });
       }
 
+
       // Hash password
       const passwordHash = await bcrypt.hash(password, 12);
+
 
       // Create user
       const user = await prisma.user.create({
@@ -91,15 +101,19 @@ router.post(
         },
       });
 
+
       // Generate OTP for email verification
       const otp = otpService.generateOTP();
       otpService.storeOTP(email, otp);
+
 
       // Send welcome email with OTP
       await emailService.sendOTPEmail(email, otp);
       await emailService.sendWelcomeEmail(email, name);
 
+
       logger.info(`New user registered: ${email}`);
+
 
       res.status(201).json({
         success: true,
@@ -115,6 +129,7 @@ router.post(
   }
 );
 
+
 /**
  * POST /api/v1/auth/verify-email
  * Verify email with OTP
@@ -129,8 +144,10 @@ router.post(
     try {
       const { email, otp } = req.body;
 
+
       // Verify OTP
       const isValid = otpService.verifyOTP(email, otp);
+
 
       if (!isValid) {
         return res.status(400).json({
@@ -138,6 +155,7 @@ router.post(
           message: 'Invalid or expired OTP',
         });
       }
+
 
       // Update user as verified
       const user = await prisma.user.update({
@@ -152,10 +170,13 @@ router.post(
         },
       });
 
+
       // Generate tokens
       const { accessToken, refreshToken } = generateTokens(user.userId, user.email, user.role);
 
+
       logger.info(`Email verified: ${email}`);
+
 
       res.json({
         success: true,
@@ -172,6 +193,7 @@ router.post(
   }
 );
 
+
 /**
  * POST /api/v1/auth/resend-otp
  * Resend OTP for email verification
@@ -184,11 +206,13 @@ router.post(
     try {
       const { email } = req.body;
 
+
       // Check if user exists
       const user = await prisma.user.findUnique({
         where: { email },
         select: { email: true, name: true, emailVerified: true },
       });
+
 
       if (!user) {
         return res.status(404).json({
@@ -197,6 +221,7 @@ router.post(
         });
       }
 
+
       if (user.emailVerified) {
         return res.status(400).json({
           success: false,
@@ -204,12 +229,15 @@ router.post(
         });
       }
 
+
       // Generate and send new OTP
       const otp = otpService.generateOTP();
       otpService.storeOTP(email, otp);
       await emailService.sendOTPEmail(email, otp);
 
+
       logger.info(`OTP resent to: ${email}`);
+
 
       res.json({
         success: true,
@@ -220,6 +248,7 @@ router.post(
     }
   }
 );
+
 
 /**
  * POST /api/v1/auth/login
@@ -235,6 +264,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
+
 
       // Find user
       const user = await prisma.user.findUnique({
@@ -252,6 +282,7 @@ router.post(
         },
       });
 
+
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -259,8 +290,10 @@ router.post(
         });
       }
 
+
       // Check password
       const isPasswordValid = await bcrypt.compare(password, user.password);
+
 
       if (!isPasswordValid) {
         return res.status(401).json({
@@ -268,6 +301,7 @@ router.post(
           message: 'Invalid email or password',
         });
       }
+
 
       // Check if account is active
       if (user.status !== 'ACTIVE') {
@@ -277,29 +311,10 @@ router.post(
         });
       }
 
-      // Check if email is verified (only if required by environment configuration)
-      const requireEmailVerification = process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
 
-      if (requireEmailVerification && !user.emailVerified) {
-        // Resend OTP
-        const otp = otpService.generateOTP();
-        otpService.storeOTP(email, otp);
+      // EMAIL VERIFICATION IS NOW OPTIONAL - Users can login without verifying
+      // No email verification check is performed during login
 
-        // Try to send email if email service is configured
-        try {
-          await emailService.sendOTPEmail(email, otp);
-        } catch (error) {
-          // If email service not configured, log OTP to console for development
-          console.log(`📧 EMAIL (DEV MODE): OTP for ${email}: ${otp}`);
-          logger.warn('Email service not configured. OTP logged to console.');
-        }
-
-        return res.status(403).json({
-          success: false,
-          message: 'Please verify your email first. OTP sent to your email.',
-          requiresVerification: true,
-        });
-      }
 
       // Update last active
       await prisma.user.update({
@@ -307,13 +322,17 @@ router.post(
         data: { lastActive: new Date() },
       });
 
+
       // Generate tokens
       const { accessToken, refreshToken } = generateTokens(user.userId, user.email, user.role);
+
 
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
 
+
       logger.info(`User logged in: ${email}`);
+
 
       res.json({
         success: true,
@@ -330,6 +349,7 @@ router.post(
   }
 );
 
+
 /**
  * POST /api/v1/auth/refresh
  * Refresh access token
@@ -338,6 +358,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
   try {
     const { refreshToken } = req.body;
 
+
     if (!refreshToken) {
       return res.status(400).json({
         success: false,
@@ -345,14 +366,17 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
       });
     }
 
+
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JWTPayload;
+
 
     // Verify user still exists and is active
     const user = await prisma.user.findUnique({
       where: { userId: decoded.userId },
       select: { userId: true, email: true, role: true, status: true },
     });
+
 
     if (!user || user.status !== 'ACTIVE') {
       return res.status(401).json({
@@ -361,6 +385,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
       });
     }
 
+
     // Generate new access token
     // @ts-ignore - Known typing issue with jsonwebtoken
     const accessToken = jwt.sign(
@@ -368,6 +393,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
       process.env.JWT_SECRET!,
       { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
     );
+
 
     res.json({
       success: true,
@@ -384,6 +410,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
   }
 });
 
+
 /**
  * POST /api/v1/auth/forgot-password
  * Request password reset
@@ -396,10 +423,12 @@ router.post(
     try {
       const { email } = req.body;
 
+
       const user = await prisma.user.findUnique({
         where: { email },
         select: { userId: true, email: true, name: true },
       });
+
 
       // Always return success to prevent email enumeration
       if (!user) {
@@ -409,18 +438,23 @@ router.post(
         });
       }
 
+
       // Generate reset token
       const resetToken = otpService.generateResetToken();
       const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
 
       // Store reset token in database (you need to add these fields to User model)
       // For now, we'll use OTP service
       otpService.storeOTP(`reset_${email}`, resetToken);
 
+
       // Send reset email
       await emailService.sendPasswordResetEmail(email, resetToken);
 
+
       logger.info(`Password reset requested: ${email}`);
+
 
       res.json({
         success: true,
@@ -431,6 +465,7 @@ router.post(
     }
   }
 );
+
 
 /**
  * POST /api/v1/auth/reset-password
@@ -449,8 +484,10 @@ router.post(
     try {
       const { token, password, email } = req.body;
 
+
       // Verify reset token
       const isValid = otpService.verifyOTP(`reset_${email}`, token);
+
 
       if (!isValid) {
         return res.status(400).json({
@@ -459,8 +496,10 @@ router.post(
         });
       }
 
+
       // Hash new password
       const passwordHash = await bcrypt.hash(password, 12);
+
 
       // Update password
       await prisma.user.update({
@@ -468,7 +507,9 @@ router.post(
         data: { password: passwordHash },
       });
 
+
       logger.info(`Password reset successful: ${email}`);
+
 
       res.json({
         success: true,
@@ -480,6 +521,7 @@ router.post(
   }
 );
 
+
 /**
  * POST /api/v1/auth/logout
  * Logout (client-side token removal, optional server-side token blacklist)
@@ -488,10 +530,13 @@ router.post('/logout', authenticate, async (req: Request, res: Response, next: N
   try {
     const userId = req.user!.userId;
 
+
     // Optional: Blacklist the token (requires Redis implementation)
     // For now, we rely on client-side token removal
 
+
     logger.info(`User logged out: ${userId}`);
+
 
     res.json({
       success: true,
@@ -502,6 +547,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response, next: N
   }
 });
 
+
 /**
  * GET /api/v1/auth/me
  * Get current user info
@@ -509,6 +555,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response, next: N
 router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
+
 
     const user = await prisma.user.findUnique({
       where: { userId },
@@ -536,12 +583,14 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
       },
     });
 
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found',
       });
     }
+
 
     res.json({
       success: true,
@@ -551,5 +600,6 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
     next(error);
   }
 });
+
 
 export default router;
